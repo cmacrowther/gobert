@@ -94,7 +94,7 @@ app.prepare().then(() => {
                                 client: {
                                     id: 'cli',
                                     version: '1.0.0',
-                                    platform: 'web',
+                                    platform: 'linux',
                                     mode: 'operator'
                                 },
                                 role: 'operator',
