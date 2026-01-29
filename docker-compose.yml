@@ -11,7 +11,7 @@ services:
       - NODE_ENV=production
       - PORT=3123
       - CLAWDBOT_URL=ws://localhost:18789
+      - CLAWDBOT_GATEWAY_TOKEN=${CLAWDBOT_GATEWAY_TOKEN}
     restart: unless-stopped
-    # Uncomment below if you have environment variables
-    # env_file:
-    #   - .env.local
+    env_file:
+      - .env.local

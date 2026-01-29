@@ -9,6 +9,16 @@ const port = parseInt(process.env.PORT || '3000', 10);
 
 // Clawdbot WebSocket URL - defaults to localhost for same-server deployment
 const CLAWDBOT_URL = process.env.CLAWDBOT_URL || 'ws://localhost:18789';
+const CLAWDBOT_GATEWAY_TOKEN = process.env.CLAWDBOT_GATEWAY_TOKEN || '';
+
+// Generate a unique ID for requests
+function generateId() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+}
 
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
@@ -71,18 +81,47 @@ app.prepare().then(() => {
                 try {
                     const parsed = JSON.parse(msgString);
 
-                    // Handle connect.challenge event - respond with the nonce
+                    // Handle connect.challenge event - send proper connect request
                     if (parsed.type === 'event' && parsed.event === 'connect.challenge') {
-                        console.log('Received connect.challenge, responding with nonce');
-                        const challengeResponse = {
-                            type: 'command',
-                            command: 'connect.challenge.response',
-                            payload: {
-                                nonce: parsed.payload.nonce
+                        console.log('Received connect.challenge, sending connect request');
+                        const connectRequest = {
+                            type: 'req',
+                            id: generateId(),
+                            method: 'connect',
+                            params: {
+                                minProtocol: 3,
+                                maxProtocol: 3,
+                                client: {
+                                    id: 'gobert-webchat',
+                                    version: '1.0.0',
+                                    platform: 'web',
+                                    mode: 'operator'
+                                },
+                                role: 'operator',
+                                scopes: ['operator.read', 'operator.write'],
+                                caps: [],
+                                commands: [],
+                                permissions: {},
+                                auth: {
+                                    token: CLAWDBOT_GATEWAY_TOKEN
+                                },
+                                locale: 'en-US',
+                                userAgent: 'gobert-webchat/1.0.0'
                             }
                         };
-                        clawdbotWs.send(JSON.stringify(challengeResponse));
+                        clawdbotWs.send(JSON.stringify(connectRequest));
                         return; // Don't forward challenge to client
+                    }
+
+                    // Handle hello-ok response (successful connection)
+                    if (parsed.type === 'res' && parsed.ok && parsed.payload?.type === 'hello-ok') {
+                        console.log('Successfully connected to Clawdbot gateway');
+                        return; // Don't forward to client
+                    }
+
+                    // Handle connection errors
+                    if (parsed.type === 'res' && !parsed.ok) {
+                        console.error('Clawdbot connection error:', parsed.error);
                     }
                 } catch (e) {
                     // Not JSON, just forward as-is
