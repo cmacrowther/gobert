@@ -165,7 +165,8 @@ export function useGobert() {
         id: generateId(),
         method: 'agent',
         params: {
-          message: content, // Changed from prompt to message
+          agentId: 'general-agent',
+          message: content,
           idempotencyKey: generateId(),
         }
       };
