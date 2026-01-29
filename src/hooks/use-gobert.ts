@@ -86,19 +86,28 @@ export function useGobert() {
         if (parsed.type === 'event') {
           const ignoredEvents = ['health', 'tick', 'presence', 'shutdown'];
           if (ignoredEvents.includes(parsed.event)) {
-            console.log(`Ignoring system event: ${parsed.event}`);
+            // console.log(`Ignoring system event: ${parsed.event}`);
             return;
           }
 
           // Handle agent events (streaming responses)
-          if (parsed.event === 'agent' && parsed.payload?.text) {
-            const newMessage: Message = {
-              id: generateId(),
-              role: 'assistant',
-              content: parsed.payload.text,
-              timestamp: Date.now(),
-            };
-            setMessages((prev) => [...prev, newMessage]);
+          if (parsed.event === 'agent') {
+            const payload = parsed.payload;
+            console.log('Received agent event:', payload);
+
+            // Extract text from the payload data
+            // Based on AgentEventSchema: { stream: string, data: Record<string, any> }
+            const content = payload?.data?.text || payload?.data?.chunk || payload?.data?.message;
+
+            if (content && typeof content === 'string') {
+              const newMessage: Message = {
+                id: generateId(),
+                role: 'assistant',
+                content: content,
+                timestamp: Date.now(),
+              };
+              setMessages((prev) => [...prev, newMessage]);
+            }
             return;
           }
         }
@@ -156,7 +165,7 @@ export function useGobert() {
         id: generateId(),
         method: 'agent',
         params: {
-          prompt: content,
+          message: content, // Changed from prompt to message
           idempotencyKey: generateId(),
         }
       };
