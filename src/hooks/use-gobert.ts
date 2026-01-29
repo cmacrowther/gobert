@@ -150,7 +150,17 @@ export function useGobert() {
     setMessages((prev) => [...prev, newMessage]);
 
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(content);
+      // Send as Moltbot protocol agent request
+      const agentRequest = {
+        type: 'req',
+        id: generateId(),
+        method: 'agent',
+        params: {
+          prompt: content,
+          idempotencyKey: generateId(),
+        }
+      };
+      wsRef.current.send(JSON.stringify(agentRequest));
     } else {
       setError('Not connected');
     }
