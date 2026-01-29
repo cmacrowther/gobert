@@ -12,7 +12,20 @@ import { GobertHead, DEFAULT_GAZE } from "@/components/gobert-head";
 const INPUT_GAZE_BASE: [number, number] = [0, -0.8];
 
 export default function Home() {
-  const { messages, sendMessage, isConnected, error, clearHistory, isLoaded } = useGobert();
+  const {
+    messages,
+    sendMessage,
+    isConnected,
+    error,
+    clearHistory,
+    isLoaded,
+    availableAgents,
+    availableModels,
+    selectedAgent,
+    selectedModel,
+    setSelectedAgent,
+    setSelectedModel
+  } = useGobert();
   const [gazeTarget, setGazeTarget] = useState<[number, number]>(DEFAULT_GAZE);
   const [isInputFocused, setIsInputFocused] = useState(false);
 
@@ -99,6 +112,12 @@ export default function Home() {
             disabled={!isConnected}
             onFocusChange={handleInputFocusChange}
             onCursorPositionChange={handleCursorPositionChange}
+            availableAgents={availableAgents}
+            availableModels={availableModels}
+            selectedAgent={selectedAgent}
+            selectedModel={selectedModel}
+            onAgentChange={setSelectedAgent}
+            onModelChange={setSelectedModel}
           />
           <div className="flex items-center justify-center gap-2 mt-4 text-[10px] uppercase tracking-widest text-white/20 select-none font-medium">
             <span className="flex items-center gap-1.5">

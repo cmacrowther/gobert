@@ -13,7 +13,7 @@ export function ChatMessage({ message, isLatestAssistant, gazeTarget }: ChatMess
   const isUser = message.role === "user";
 
   return (
-    <div className={cn("flex w-full items-start gap-4 mb-6", isUser && "justify-end")}>
+    <div className={cn("flex w-full items-start gap-2 mb-6", isUser && "justify-end")}>
       {!isUser && isLatestAssistant ? (
         <div className="flex-shrink-0 mt-1 w-12 h-12 flex items-center justify-center">
           <div className="w-12 h-12 -ml-1 -mt-1">

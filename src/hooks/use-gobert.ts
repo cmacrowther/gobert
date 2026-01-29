@@ -7,6 +7,18 @@ export type Message = {
   timestamp: number;
 };
 
+export type Agent = {
+  id: string;
+  name: string;
+  description?: string;
+};
+
+export type Model = {
+  id: string;
+  name: string;
+  provider?: string;
+};
+
 // Generate a unique ID - fallback for non-secure contexts where crypto.randomUUID isn't available
 function generateId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -25,6 +37,10 @@ export function useGobert() {
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [models, setModels] = useState<Model[]>([]);
+  const [selectedAgent, setSelectedAgent] = useState<string>('general-agent');
+  const [selectedModel, setSelectedModel] = useState<string>('claude-3-opus');
   const wsRef = useRef<WebSocket | null>(null);
 
   // Load from local storage on mount
@@ -67,6 +83,21 @@ export function useGobert() {
       setIsConnected(true);
       setError(null);
       console.log('Connected to Gobert');
+
+      // Fetch available agents and models
+      ws.send(JSON.stringify({
+        type: 'req',
+        id: generateId(),
+        method: 'clawdbot.list_agents',
+        params: {}
+      }));
+
+      ws.send(JSON.stringify({
+        type: 'req',
+        id: generateId(),
+        method: 'clawdbot.list_models',
+        params: {}
+      }));
     };
 
     ws.onclose = () => {
@@ -136,6 +167,28 @@ export function useGobert() {
           return;
         }
 
+        // Handle list_agents response
+        if (parsed.type === 'res' && parsed.ok && parsed.payload?.agents) {
+          console.log('Received agents:', parsed.payload.agents);
+          setAgents(parsed.payload.agents);
+          // Set default if not set
+          if (parsed.payload.agents.length > 0 && !selectedAgent) {
+            setSelectedAgent(parsed.payload.agents[0].id);
+          }
+          return;
+        }
+
+        // Handle list_models response
+        if (parsed.type === 'res' && parsed.ok && parsed.payload?.models) {
+          console.log('Received models:', parsed.payload.models);
+          setModels(parsed.payload.models);
+          // Set default if not set
+          if (parsed.payload.models.length > 0 && !selectedModel) {
+            setSelectedModel(parsed.payload.models[0].id);
+          }
+          return;
+        }
+
         // Log other messages for debugging
         console.log('Unhandled message:', parsed);
       } catch (e) {
@@ -182,7 +235,8 @@ export function useGobert() {
         id: generateId(),
         method: 'agent',
         params: {
-          agentId: 'general-agent',
+          agentId: selectedAgent,
+          modelId: selectedModel,
           message: content,
           idempotencyKey: generateId(),
         }
@@ -191,7 +245,7 @@ export function useGobert() {
     } else {
       setError('Not connected');
     }
-  }, []);
+  }, [selectedAgent, selectedModel]);
 
   const clearHistory = useCallback(() => {
     setMessages([]);
@@ -206,6 +260,12 @@ export function useGobert() {
     isConnected,
     error,
     clearHistory,
-    isLoaded
+    isLoaded,
+    availableAgents: agents,
+    availableModels: models,
+    selectedAgent,
+    selectedModel,
+    setSelectedAgent,
+    setSelectedModel
   };
 }
