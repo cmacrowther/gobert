@@ -58,6 +58,7 @@ app.prepare().then(() => {
         let clawdbotWs = null;
         let messageQueue = [];
         let isClawdbotConnected = false;
+        let isHandshakeComplete = false;
 
         // Connect to Clawdbot
         try {
@@ -66,12 +67,6 @@ app.prepare().then(() => {
             clawdbotWs.on('open', () => {
                 console.log('Connected to Clawdbot');
                 isClawdbotConnected = true;
-
-                // Send any queued messages
-                messageQueue.forEach((msg) => {
-                    clawdbotWs.send(msg);
-                });
-                messageQueue = [];
             });
 
             clawdbotWs.on('message', (data) => {
@@ -116,6 +111,14 @@ app.prepare().then(() => {
                     // Handle hello-ok response (successful connection)
                     if (parsed.type === 'res' && parsed.ok && parsed.payload?.type === 'hello-ok') {
                         console.log('Successfully connected to Clawdbot gateway');
+                        isHandshakeComplete = true;
+
+                        // Send any queued messages
+                        messageQueue.forEach((msg) => {
+                            clawdbotWs.send(msg);
+                        });
+                        messageQueue = [];
+
                         return; // Don't forward to client
                     }
 
@@ -157,7 +160,7 @@ app.prepare().then(() => {
         // Forward client messages to Clawdbot
         clientWs.on('message', (message) => {
             const msgString = message.toString();
-            if (isClawdbotConnected && clawdbotWs.readyState === WebSocket.OPEN) {
+            if (isClawdbotConnected && isHandshakeComplete && clawdbotWs.readyState === WebSocket.OPEN) {
                 clawdbotWs.send(msgString);
             } else {
                 // Queue message if not yet connected
