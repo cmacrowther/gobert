@@ -79,7 +79,7 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <ChatList messages={messages} />
+          <ChatList messages={messages} gazeTarget={gazeTarget} />
         )}
       </div>
 
@@ -100,7 +100,7 @@ export default function Home() {
             onCursorPositionChange={handleCursorPositionChange}
           />
           <p className="text-center text-xs text-muted-foreground mt-3">
-            Gobert can make mistakes. Consider checking important information.
+            TODO: Add model and agent status here
           </p>
         </div>
       </div>

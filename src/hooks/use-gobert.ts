@@ -128,6 +128,11 @@ export function useGobert() {
         console.log('Unhandled message:', parsed);
       } catch (e) {
         // Not JSON, treat as plain text response
+        // Filter out "completed" messages (case-insensitive)
+        if (text.trim().toLowerCase() === 'completed') {
+          return;
+        }
+
         const newMessage: Message = {
           id: generateId(),
           role: 'assistant',

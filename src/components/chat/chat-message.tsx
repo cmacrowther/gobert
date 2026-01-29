@@ -6,9 +6,10 @@ import { GobertHead } from "@/components/gobert-head";
 interface ChatMessageProps {
   message: Message;
   isLatestAssistant?: boolean;
+  gazeTarget?: [number, number];
 }
 
-export function ChatMessage({ message, isLatestAssistant }: ChatMessageProps) {
+export function ChatMessage({ message, isLatestAssistant, gazeTarget }: ChatMessageProps) {
   const isUser = message.role === "user";
 
   return (
