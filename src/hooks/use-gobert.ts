@@ -77,14 +77,56 @@ export function useGobert() {
 
     ws.onmessage = (event) => {
       const text = event.data;
-      // Assuming plaintext response from bot
-      const newMessage: Message = {
-        id: generateId(),
-        role: 'assistant',
-        content: text,
-        timestamp: Date.now(),
-      };
-      setMessages((prev) => [...prev, newMessage]);
+
+      // Try to parse as JSON (Moltbot protocol)
+      try {
+        const parsed = JSON.parse(text);
+
+        // Ignore system events (health, tick, presence, shutdown)
+        if (parsed.type === 'event') {
+          const ignoredEvents = ['health', 'tick', 'presence', 'shutdown'];
+          if (ignoredEvents.includes(parsed.event)) {
+            console.log(`Ignoring system event: ${parsed.event}`);
+            return;
+          }
+
+          // Handle agent events (streaming responses)
+          if (parsed.event === 'agent' && parsed.payload?.text) {
+            const newMessage: Message = {
+              id: generateId(),
+              role: 'assistant',
+              content: parsed.payload.text,
+              timestamp: Date.now(),
+            };
+            setMessages((prev) => [...prev, newMessage]);
+            return;
+          }
+        }
+
+        // Handle response frames (final agent response)
+        if (parsed.type === 'res' && parsed.ok && parsed.payload?.summary) {
+          const newMessage: Message = {
+            id: generateId(),
+            role: 'assistant',
+            content: parsed.payload.summary,
+            timestamp: Date.now(),
+          };
+          setMessages((prev) => [...prev, newMessage]);
+          return;
+        }
+
+        // Log other messages for debugging
+        console.log('Unhandled message:', parsed);
+      } catch (e) {
+        // Not JSON, treat as plain text response
+        const newMessage: Message = {
+          id: generateId(),
+          role: 'assistant',
+          content: text,
+          timestamp: Date.now(),
+        };
+        setMessages((prev) => [...prev, newMessage]);
+      }
     };
 
     return () => {
