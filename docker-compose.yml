@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: gobert-client
     ports:
-      - "3000:3000"
+      - "3123:3000"
     environment:
       - NODE_ENV=production
       - CLAWDBOT_URL=ws://host.docker.internal:18789
