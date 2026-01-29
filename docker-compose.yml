@@ -1,0 +1,31 @@
+services:
+  gobert-client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gobert-client
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    # Uncomment below if you have environment variables
+    # env_file:
+    #   - .env.local
+
+  # Development service (optional - use for local development with hot reload)
+  gobert-client-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: gobert-client-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    profiles:
+      - dev
