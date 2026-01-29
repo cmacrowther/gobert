@@ -27,6 +27,25 @@ export default function Home() {
     }
   }, []);
 
+  // Mouse tracking for gaze
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isInputFocused) {
+        // Normalize mouse coordinates to [-1, 1] range
+        // Center of screen is (0,0)
+        const x = (e.clientX / window.innerWidth) * 2 - 1;
+        const y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+        // Scale down the movement slightly so it's not too extreme
+        // The head expects roughly [-1, 1] but usually stays within smaller bounds
+        setGazeTarget([x * 0.5, y * 0.5]);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [isInputFocused]);
+
   const handleCursorPositionChange = useCallback((normalizedX: number) => {
     if (isInputFocused) {
       // Scale the horizontal movement (reduce intensity for subtlety)

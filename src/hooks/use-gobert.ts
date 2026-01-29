@@ -100,6 +100,9 @@ export function useGobert() {
             const content = payload?.data?.text || payload?.data?.chunk || payload?.data?.message;
 
             if (content && typeof content === 'string') {
+              // Filter out "completed" messages
+              if (content.trim().toLowerCase() === 'completed') return;
+
               const newMessage: Message = {
                 id: generateId(),
                 role: 'assistant',
@@ -114,10 +117,14 @@ export function useGobert() {
 
         // Handle response frames (final agent response)
         if (parsed.type === 'res' && parsed.ok && parsed.payload?.summary) {
+          const content = parsed.payload.summary;
+          // Filter out "completed" messages
+          if (content.trim().toLowerCase() === 'completed') return;
+
           const newMessage: Message = {
             id: generateId(),
             role: 'assistant',
-            content: parsed.payload.summary,
+            content: content,
             timestamp: Date.now(),
           };
           setMessages((prev) => [...prev, newMessage]);
