@@ -92,9 +92,10 @@ app.prepare().then(() => {
                                 minProtocol: 3,
                                 maxProtocol: 3,
                                 client: {
-                                    id: 'cli',
+                                    id: 'webchat',
                                     version: '1.0.0',
-                                    platform: 'linux'
+                                    platform: 'linux',
+                                    mode: 'webchat'
                                 },
                                 role: 'operator',
                                 scopes: ['operator.read', 'operator.write'],
