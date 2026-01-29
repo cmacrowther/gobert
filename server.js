@@ -65,9 +65,32 @@ app.prepare().then(() => {
             });
 
             clawdbotWs.on('message', (data) => {
+                const msgString = data.toString();
+
+                // Try to parse as JSON to handle special events
+                try {
+                    const parsed = JSON.parse(msgString);
+
+                    // Handle connect.challenge event - respond with the nonce
+                    if (parsed.type === 'event' && parsed.event === 'connect.challenge') {
+                        console.log('Received connect.challenge, responding with nonce');
+                        const challengeResponse = {
+                            type: 'command',
+                            command: 'connect.challenge.response',
+                            payload: {
+                                nonce: parsed.payload.nonce
+                            }
+                        };
+                        clawdbotWs.send(JSON.stringify(challengeResponse));
+                        return; // Don't forward challenge to client
+                    }
+                } catch (e) {
+                    // Not JSON, just forward as-is
+                }
+
                 // Forward Clawdbot responses to client
                 if (clientWs.readyState === WebSocket.OPEN) {
-                    clientWs.send(data.toString());
+                    clientWs.send(msgString);
                 }
             });
 
