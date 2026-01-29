@@ -92,7 +92,7 @@ app.prepare().then(() => {
                                 minProtocol: 3,
                                 maxProtocol: 3,
                                 client: {
-                                    id: 'gobert-webchat',
+                                    id: 'cli',
                                     version: '1.0.0',
                                     platform: 'web',
                                     mode: 'operator'
