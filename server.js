@@ -94,8 +94,7 @@ app.prepare().then(() => {
                                 client: {
                                     id: 'cli',
                                     version: '1.0.0',
-                                    platform: 'linux',
-                                    mode: 'operator'
+                                    platform: 'linux'
                                 },
                                 role: 'operator',
                                 scopes: ['operator.read', 'operator.write'],
