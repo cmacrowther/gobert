@@ -118,7 +118,7 @@ export function GobertHead({ className, style, gazeTarget }: GobertHeadProps) {
   }, [gazeTarget]);
 
   return (
-    <div className={className} style={{ marginLeft: "6px", width: "200px", height: "200px" }}>
+    <div className={className} style={{ width: "100%", height: "100%", ...style }}>
       <Canvas camera={{ position: [0, 0, 8], fov: 50, near: 0.1, far: 1000 }} dpr={[1, 3]} gl={{ antialias: true }}>
         <ambientLight intensity={0.6} />
         <directionalLight position={[10, 20, 10]} intensity={0.8} />

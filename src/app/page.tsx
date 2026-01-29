@@ -56,7 +56,7 @@ export default function Home() {
           <div className="flex-1 flex flex-col items-center justify-center text-center">
             {/* Floating Head for Empty State */}
             <div className="relative w-[200px] h-[200px] flex items-center justify-center animate-fade-in-up -mb-2">
-              <GobertHead className="w-full h-full" gazeTarget={gazeTarget} />
+              <GobertHead className="w-full h-full" style={{ marginLeft: "6px" }} gazeTarget={gazeTarget} />
               {/* Orbiting Electrons - Atomic Model */}
               <div className="orbit-container" style={{ zIndex: "-100" }}>
                 {/* Ring 1 with orbiting electron */}

@@ -13,19 +13,13 @@ export function ChatMessage({ message, isLatestAssistant }: ChatMessageProps) {
 
   return (
     <div className={cn("flex w-full items-start gap-4 mb-6", isUser && "justify-end")}>
-      {!isUser && (
+      {!isUser && isLatestAssistant ? (
         <div className="flex-shrink-0 mt-1 w-12 h-12 flex items-center justify-center">
-          {isLatestAssistant ? (
-            <div className="w-16 h-16 -ml-2 -mt-2">
-              <GobertHead className="w-full h-full" />
-            </div>
-          ) : (
-            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
-              <span className="text-xs font-bold text-white">GB</span>
-            </div>
-          )}
+          <div className="w-12 h-12 -ml-1 -mt-1">
+            <GobertHead className="w-full h-full" />
+          </div>
         </div>
-      )}
+      ) : null}
 
       <div
         className={cn(
