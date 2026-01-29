@@ -86,7 +86,7 @@ export default function Home() {
       {/* Error Message */}
       {error && (
         <div style={{ marginBottom: "50px" }} className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-red-900/80 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
-          {error} - Make sure Gobert is running on port 18789
+          {error} - Check server connection to Clawdbot
         </div>
       )}
 

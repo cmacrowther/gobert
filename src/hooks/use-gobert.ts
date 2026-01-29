@@ -37,9 +37,12 @@ export function useGobert() {
     }
   }, [messages]);
 
-  // Connect to WebSocket
+  // Connect to WebSocket proxy
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:18789');
+    // Use the proxy endpoint - this connects to our server which proxies to Clawdbot
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/api/ws`;
+    const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
     ws.onopen = () => {

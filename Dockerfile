@@ -53,6 +53,12 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
+# Copy our custom server.js (overwrites Next.js standalone server.js)
+COPY --from=builder /app/server.js ./server.js
+
+# Install ws package for WebSocket proxy (needed at runtime)
+RUN npm install ws --omit=dev
+
 # Set correct permissions
 RUN chown -R nextjs:nodejs /app
 
@@ -66,5 +72,10 @@ EXPOSE 3000
 ENV HOSTNAME="0.0.0.0"
 ENV PORT=3000
 
+# Clawdbot WebSocket URL - configure this to your Clawdbot instance
+# Use container name if in same docker network, or host.docker.internal for host access
+ENV CLAWDBOT_URL="ws://host.docker.internal:18789"
+
 # Start the application
 CMD ["node", "server.js"]
+
