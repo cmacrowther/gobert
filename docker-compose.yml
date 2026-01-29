@@ -6,13 +6,11 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: gobert-client
-    ports:
-      - "3123:3000"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    network_mode: "host"
     environment:
       - NODE_ENV=production
-      - CLAWDBOT_URL=ws://host.docker.internal:18789
+      - PORT=3123
+      - CLAWDBOT_URL=ws://localhost:18789
     restart: unless-stopped
     # Uncomment below if you have environment variables
     # env_file:
