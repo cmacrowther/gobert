@@ -34,7 +34,12 @@ export function useGobert() {
       if (savedMessages) {
         try {
           // eslint-disable-next-line
-          setMessages(JSON.parse(savedMessages));
+          const parsedMessages = JSON.parse(savedMessages) as Message[];
+          // Filter out existing "completed" messages from history
+          const filteredMessages = parsedMessages.filter(msg =>
+            msg.content && msg.content.trim().toLowerCase() !== 'completed'
+          );
+          setMessages(filteredMessages);
         } catch (e) {
           console.error('Failed to parse chat history', e);
         }
