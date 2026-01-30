@@ -84,18 +84,11 @@ export function useGobert() {
       setError(null);
       console.log('Connected to Gobert');
 
-      // Fetch available agents and models
+      // Fetch available agents and models from health endpoint
       ws.send(JSON.stringify({
         type: 'req',
         id: generateId(),
-        method: 'operator.list_agents',
-        params: {}
-      }));
-
-      ws.send(JSON.stringify({
-        type: 'req',
-        id: generateId(),
-        method: 'operator.list_models',
+        method: 'health',
         params: {}
       }));
     };
@@ -167,26 +160,33 @@ export function useGobert() {
           return;
         }
 
-        // Handle list_agents response
-        if (parsed.type === 'res' && parsed.ok && parsed.payload?.agents) {
-          console.log('Received agents:', parsed.payload.agents);
-          setAgents(parsed.payload.agents);
-          // Set default if not set
-          if (parsed.payload.agents.length > 0 && !selectedAgent) {
-            setSelectedAgent(parsed.payload.agents[0].id);
-          }
-          return;
-        }
+        // Handle health response (contains agents and models)
+        if (parsed.type === 'res' && parsed.ok && parsed.payload) {
+          // Check if this is a health response by looking for typical health fields
+          if (parsed.payload.agents || parsed.payload.models || parsed.payload.version) {
+            console.log('Received health response:', parsed.payload);
 
-        // Handle list_models response
-        if (parsed.type === 'res' && parsed.ok && parsed.payload?.models) {
-          console.log('Received models:', parsed.payload.models);
-          setModels(parsed.payload.models);
-          // Set default if not set
-          if (parsed.payload.models.length > 0 && !selectedModel) {
-            setSelectedModel(parsed.payload.models[0].id);
+            if (parsed.payload.agents && Array.isArray(parsed.payload.agents)) {
+              const agentList = parsed.payload.agents.map((a: { id?: string; name?: string; description?: string } | string) =>
+                typeof a === 'string' ? { id: a, name: a } : { id: a.id || a.name || 'unknown', name: a.name || a.id || 'Unknown Agent', description: a.description }
+              );
+              setAgents(agentList);
+              if (agentList.length > 0) {
+                setSelectedAgent(agentList[0].id);
+              }
+            }
+
+            if (parsed.payload.models && Array.isArray(parsed.payload.models)) {
+              const modelList = parsed.payload.models.map((m: { id?: string; name?: string; provider?: string } | string) =>
+                typeof m === 'string' ? { id: m, name: m } : { id: m.id || m.name || 'unknown', name: m.name || m.id || 'Unknown Model', provider: m.provider }
+              );
+              setModels(modelList);
+              if (modelList.length > 0) {
+                setSelectedModel(modelList[0].id);
+              }
+            }
+            return;
           }
-          return;
         }
 
         // Log other messages for debugging
