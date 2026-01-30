@@ -88,3 +88,7 @@ Designed to interface with a local or remote Clawdbot instance.
 -   **UI Components**: shadcn/ui, Radix UI
 -   **Icons**: Lucide React
 -   **Runtime**: Node.js
+
+## Contributions
+
+Feel free to submit a PR!
