@@ -13,8 +13,9 @@ function HeadModel({ mouse }: { mouse: React.MutableRefObject<[number, number]> 
 
   useEffect(() => {
     const loader = new OBJLoader();
+    const modelName = process.env.NEXT_PUBLIC_BOT_HEAD || 'model.obj';
     loader.load(
-      '/head.obj',
+      `/${modelName}`,
       (loadedObj) => {
         const materials: THREE.MeshStandardMaterial[] = [];
 
