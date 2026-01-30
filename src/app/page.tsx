@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useChat } from "@/hooks/use-chat";
 import { ChatInput } from "@/components/chat/chat-input";
 import { ChatList } from "@/components/chat/chat-list";
 import { Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BotHead, DEFAULT_GAZE } from "@/components/bot-head";
+import { ThinkingBubble } from "@/components/thinking-bubble";
 
 // Gaze target when looking at the text input (looking down)
 const INPUT_GAZE_BASE: [number, number] = [0, -0.8];
@@ -28,6 +29,33 @@ export default function Home() {
   } = useChat();
   const [gazeTarget, setGazeTarget] = useState<[number, number]>(DEFAULT_GAZE);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [showThinkingBubble, setShowThinkingBubble] = useState(false);
+
+  // Periodic thinking bubble on homepage (no chat active)
+  useEffect(() => {
+    // Only run when there are no messages (empty state)
+    if (messages.length > 0) {
+      setShowThinkingBubble(false);
+      return;
+    }
+
+    const scheduleNextBubble = () => {
+      // Random interval between 5-8 seconds
+      const interval = 5000 + Math.random() * 3000;
+      return setTimeout(() => {
+        setShowThinkingBubble(true);
+        // Hide after 2.5 seconds
+        setTimeout(() => {
+          setShowThinkingBubble(false);
+          // Schedule next appearance
+          scheduleNextBubble();
+        }, 2500);
+      }, interval);
+    };
+
+    const timeoutId = scheduleNextBubble();
+    return () => clearTimeout(timeoutId);
+  }, [messages.length]);
 
   // Update gaze when input focus changes
   const handleInputFocusChange = useCallback((isFocused: boolean) => {
@@ -67,6 +95,7 @@ export default function Home() {
           <div className="flex-1 flex flex-col items-center justify-center text-center">
             {/* Floating Head for Empty State */}
             <div className="relative w-[200px] h-[200px] flex items-center justify-center animate-fade-in-up -mb-2">
+              <ThinkingBubble visible={showThinkingBubble} />
               <BotHead className="w-full h-full" style={{ marginLeft: "6px" }} gazeTarget={gazeTarget} />
               {/* Orbiting Electrons - Atomic Model */}
               <div className="orbit-container" style={{ zIndex: "-100" }}>

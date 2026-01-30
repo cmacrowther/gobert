@@ -2,6 +2,7 @@ import { Message } from "@/hooks/use-chat";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { BotHead } from "@/components/bot-head";
+import { ThinkingBubble } from "@/components/thinking-bubble";
 
 interface ChatMessageProps {
   message: Message;
@@ -14,11 +15,14 @@ interface ChatMessageProps {
 export function ChatMessage({ message, isLatestAssistant, isLatestUser, isWaitingForResponse, gazeTarget }: ChatMessageProps) {
   const isUser = message.role === "user";
   const showLoadingBorder = isUser && isLatestUser && isWaitingForResponse;
+  // Show thinking bubble on bot head when waiting for response
+  const showBotThinking = !isUser && isLatestAssistant && isWaitingForResponse;
 
   return (
     <div className={cn("flex w-full items-start gap-2 mb-6", isUser && "justify-end")}>
       {!isUser && isLatestAssistant ? (
-        <div className="flex-shrink-0 mt-1 w-12 h-12 flex items-center justify-center">
+        <div className="flex-shrink-0 mt-1 w-12 h-12 flex items-center justify-center relative">
+          <ThinkingBubble visible={showBotThinking ?? false} className="top-[-14px]" />
           <div className="w-12 h-12 -ml-1 -mt-1">
             <BotHead className="w-full h-full" gazeTarget={gazeTarget} />
           </div>
