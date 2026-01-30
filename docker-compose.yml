@@ -5,13 +5,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_BOT_NAME: ${NEXT_PUBLIC_BOT_NAME}
+        NEXT_PUBLIC_BOT_HEAD: ${NEXT_PUBLIC_BOT_HEAD}
     container_name: gobert-client
     network_mode: "host"
     environment:
       - NODE_ENV=production
       - PORT=3123
       - CLAWDBOT_URL=ws://localhost:18789
-      - CLAWDBOT_GATEWAY_TOKEN=${CLAWDBOT_GATEWAY_TOKEN}
     restart: unless-stopped
     env_file:
       - .env.local

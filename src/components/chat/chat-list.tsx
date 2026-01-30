@@ -32,7 +32,7 @@ export function ChatList({ messages, gazeTarget, isWaitingForResponse }: ChatLis
           <ChatMessage
             key={msg.id}
             message={msg}
-            isLatestAssistant={index === lastAssistantIndex}
+            isLatestAssistant={index === lastAssistantIndex && (index === messages.length - 1 || !isWaitingForResponse)}
             isLatestUser={index === lastUserIndex}
             isWaitingForResponse={isWaitingForResponse}
             gazeTarget={gazeTarget}

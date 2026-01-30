@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 const botName = process.env.NEXT_PUBLIC_BOT_NAME || 'Clawdbot';
 
 export const metadata: Metadata = {
-  title: `${botName} Chat`,
-  description: `AI Chat Interface for ${botName}`,
+  title: `${botName}. Web Chat`,
+  description: `AI Web Chat Interface for ${botName}`,
 };
 
 export default function RootLayout({

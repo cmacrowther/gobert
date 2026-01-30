@@ -5,6 +5,12 @@
 # ==========================================
 FROM node:22-alpine AS deps
 
+ARG NEXT_PUBLIC_BOT_NAME
+ARG NEXT_PUBLIC_BOT_HEAD
+
+ENV NEXT_PUBLIC_BOT_NAME=$NEXT_PUBLIC_BOT_NAME
+ENV NEXT_PUBLIC_BOT_HEAD=$NEXT_PUBLIC_BOT_HEAD
+
 # Install libc6-compat for Alpine compatibility with some npm packages
 RUN apk add --no-cache libc6-compat
 
