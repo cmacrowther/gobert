@@ -192,7 +192,7 @@ export default function Home() {
         <div className="w-full max-w-3xl">
           <ChatInput
             onSend={sendMessage}
-            disabled={isConnected}
+            disabled={!isConnected}
             onFocusChange={handleInputFocusChange}
             onCursorPositionChange={handleCursorPositionChange}
             availableAgents={availableAgents}
