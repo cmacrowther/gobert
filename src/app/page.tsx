@@ -90,7 +90,7 @@ export default function Home() {
             <div className="flex flex-col items-center" style={{ marginTop: "-50px" }}>
               <h1 className="text-3xl font-bold tracking-tight animate-fade-in-up animate-delay-100">
                 Gobert. <span className="text-muted-foreground px-1 font-light">Web Chat</span>
-                <span class="inline-flex items-center rounded-md bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-500 inset-ring inset-ring-yellow-400/20" style={{ position: "absolute" }}>ALPHA</span>
+
                 {isConnected ? (
                   <span className="font-bold tracking-tighter animate-pulse">_</span>
                 ) : ""}
@@ -106,7 +106,7 @@ export default function Home() {
       {/* Error Message */}
       {error && (
         <div style={{ marginBottom: "50px" }} className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-red-900/80 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
-          {error} - Check server connection to Clawdbot
+          {error}
         </div>
       )}
 
@@ -129,12 +129,12 @@ export default function Home() {
             {isConnected ? (
               <span className="flex items-center gap-1.5">
                 <span className="w-1 h-1 rounded-full animate-pulse bg-emerald-500/50 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                Connected to Clawdbot instance at {process.env.CLAWDBOT_URL}
+                Connected to Clawdbot instance at {process.env.NEXT_PUBLIC_CLAWDBOT_URL || "ws://localhost:18789"}
               </span>
             ) : (
               <span className="flex items-center gap-1.5">
                 <span className="w-1 h-1 rounded-full bg-red-500/50 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                Could not connect to Clawdbot instance at {process.env.CLAWDBOT_URL}
+                Could not connect to Clawdbot instance at {process.env.NEXT_PUBLIC_CLAWDBOT_URL || "ws://localhost:18789"}
               </span>
             )}
           </div>
