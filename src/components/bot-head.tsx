@@ -14,21 +14,38 @@ function HeadModel({ mouse }: { mouse: React.MutableRefObject<[number, number]> 
   useEffect(() => {
     const loader = new OBJLoader();
     const modelName = process.env.NEXT_PUBLIC_BOT_HEAD || 'model.obj';
+    const isDefaultModel = modelName === 'model.obj';
+
     loader.load(
       `/${modelName}`,
       (loadedObj) => {
         const materials: THREE.MeshStandardMaterial[] = [];
 
-        // Apply vertex colors material to all meshes (same as the original viewer)
+        // Apply material to all meshes
         loadedObj.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
             const mesh = child as THREE.Mesh;
-            const material = new THREE.MeshStandardMaterial({
-              vertexColors: true,
-              roughness: 0.8,
-              opacity: 0, // Start invisible
-              transparent: true,
-            });
+            let material;
+
+            if (isDefaultModel) {
+              // Custom logic for default model: Red color
+              material = new THREE.MeshStandardMaterial({
+                color: '#ef4444', // Red-500 from Tailwind
+                roughness: 0.4,
+                metalness: 0.1,
+                opacity: 0, // Start invisible
+                transparent: true,
+              });
+            } else {
+              // Existing logic for custom models: Vertex colors
+              material = new THREE.MeshStandardMaterial({
+                vertexColors: true,
+                roughness: 0.8,
+                opacity: 0, // Start invisible
+                transparent: true,
+              });
+            }
+
             mesh.material = material;
             materials.push(material);
           }
@@ -92,11 +109,13 @@ function HeadModel({ mouse }: { mouse: React.MutableRefObject<[number, number]> 
 
   if (!obj) return null;
 
+  const isDefaultModel = (process.env.NEXT_PUBLIC_BOT_HEAD || 'model.obj') === 'model.obj';
+
   return (
     <primitive
       object={obj}
       ref={meshRef}
-      scale={0.25}
+      scale={isDefaultModel ? 0.375 : 0.25}
     />
   );
 }
