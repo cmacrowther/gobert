@@ -122,12 +122,17 @@ export default function Home() {
             onModelChange={setSelectedModel}
           />
           <div className="flex items-center justify-center gap-2 mt-4 text-[10px] uppercase tracking-widest text-white/20 select-none font-medium">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1 h-1 rounded-full bg-emerald-500/50 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-              Gobert
-            </span>
-            <span className="text-white/10">•</span>
-            <span>Clawdbot 1.0</span>
+            {isConnected ? (
+              <span className="flex items-center gap-1.5">
+                <span className="w-1 h-1 rounded-full animate-pulse bg-emerald-500/50 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+                Connected to Clawdbot instance
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5">
+                <span className="w-1 h-1 rounded-full bg-red-500/50 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+                Could not connect to Clawdbot instance
+              </span>
+            )}
           </div>
         </div>
       </div>
