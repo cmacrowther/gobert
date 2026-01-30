@@ -295,6 +295,23 @@
       #3b82f6);
 }
 
+/* Animated gradient angle for badges */
+@keyframes border-spin {
+  0% {
+    --gradient-angle: 0deg;
+  }
+
+  100% {
+    --gradient-angle: 360deg;
+  }
+}
+
+@property --gradient-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
 /* Animated gradient border for badge */
 .gradient-badge {
   position: relative;
