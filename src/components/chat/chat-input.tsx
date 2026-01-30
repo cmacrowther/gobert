@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUp } from "lucide-react";
 import { useState, FormEvent, useRef, useEffect, useCallback } from "react";
 import { ModelSelector } from "./model-selector";
-import { Agent, Model } from "@/hooks/use-gobert";
+import { Agent } from "@/hooks/use-gobert";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -10,11 +10,8 @@ interface ChatInputProps {
   onFocusChange?: (isFocused: boolean) => void;
   onCursorPositionChange?: (normalizedX: number) => void;
   availableAgents?: Agent[];
-  availableModels?: Model[];
   selectedAgent?: string;
-  selectedModel?: string;
   onAgentChange?: (agentId: string) => void;
-  onModelChange?: (modelId: string) => void;
 }
 
 export function ChatInput({
@@ -23,11 +20,8 @@ export function ChatInput({
   onFocusChange,
   onCursorPositionChange,
   availableAgents = [],
-  availableModels = [],
   selectedAgent = "",
-  selectedModel = "",
-  onAgentChange,
-  onModelChange
+  onAgentChange
 }: ChatInputProps) {
   const [input, setInput] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -138,16 +132,6 @@ export function ChatInput({
             onChange={onAgentChange || (() => { })}
             disabled={disabled}
             placeholder="Select Agent"
-          />
-        )}
-        {availableModels.length > 0 && (
-          <ModelSelector
-            type="model"
-            options={availableModels}
-            value={selectedModel}
-            onChange={onModelChange || (() => { })}
-            disabled={disabled}
-            placeholder="Select Model"
           />
         )}
       </div>

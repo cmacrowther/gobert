@@ -6,11 +6,14 @@ import { GobertHead } from "@/components/gobert-head";
 interface ChatMessageProps {
   message: Message;
   isLatestAssistant?: boolean;
+  isLatestUser?: boolean;
+  isWaitingForResponse?: boolean;
   gazeTarget?: [number, number];
 }
 
-export function ChatMessage({ message, isLatestAssistant, gazeTarget }: ChatMessageProps) {
+export function ChatMessage({ message, isLatestAssistant, isLatestUser, isWaitingForResponse, gazeTarget }: ChatMessageProps) {
   const isUser = message.role === "user";
+  const showLoadingBorder = isUser && isLatestUser && isWaitingForResponse;
 
   return (
     <div className={cn("flex w-full items-start gap-2 mb-6", isUser && "justify-end")}>
@@ -34,7 +37,7 @@ export function ChatMessage({ message, isLatestAssistant, gazeTarget }: ChatMess
       </div>
 
       {isUser && (
-        <Avatar className="h-10 w-10 mt-1 border border-white/10">
+        <Avatar className={cn("h-10 w-10 mt-1", showLoadingBorder ? "avatar-loading" : "border border-white/10")}>
           <AvatarImage src="/user-avatar.jpg" />
           <AvatarFallback className="bg-zinc-700 text-zinc-300 text-xs">U</AvatarFallback>
         </Avatar>

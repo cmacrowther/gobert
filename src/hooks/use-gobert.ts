@@ -13,12 +13,6 @@ export type Agent = {
   description?: string;
 };
 
-export type Model = {
-  id: string;
-  name: string;
-  provider?: string;
-};
-
 // Generate a unique ID - fallback for non-secure contexts where crypto.randomUUID isn't available
 function generateId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -37,10 +31,9 @@ export function useGobert() {
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
   const [agents, setAgents] = useState<Agent[]>([]);
-  const [models, setModels] = useState<Model[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<string>('');
-  const [selectedModel, setSelectedModel] = useState<string>('');
   const wsRef = useRef<WebSocket | null>(null);
 
   // Load from local storage on mount
@@ -139,6 +132,7 @@ export function useGobert() {
                 timestamp: Date.now(),
               };
               setMessages((prev) => [...prev, newMessage]);
+              setIsWaitingForResponse(false);
             }
             return;
           }
@@ -157,6 +151,7 @@ export function useGobert() {
             timestamp: Date.now(),
           };
           setMessages((prev) => [...prev, newMessage]);
+          setIsWaitingForResponse(false);
           return;
         }
 
@@ -174,16 +169,6 @@ export function useGobert() {
               setAgents(agentList);
               if (agentList.length > 0) {
                 setSelectedAgent(agentList[0].id);
-              }
-            }
-
-            if (parsed.payload.models && Array.isArray(parsed.payload.models)) {
-              const modelList = parsed.payload.models.map((m: { id?: string; name?: string; provider?: string } | string) =>
-                typeof m === 'string' ? { id: m, name: m } : { id: m.id || m.name || 'unknown', name: m.name || m.id || 'Unknown Model', provider: m.provider }
-              );
-              setModels(modelList);
-              if (modelList.length > 0) {
-                setSelectedModel(modelList[0].id);
               }
             }
             return;
@@ -206,6 +191,7 @@ export function useGobert() {
           timestamp: Date.now(),
         };
         setMessages((prev) => [...prev, newMessage]);
+        setIsWaitingForResponse(false);
       }
     };
 
@@ -228,16 +214,15 @@ export function useGobert() {
 
     // Optimistically add user message
     setMessages((prev) => [...prev, newMessage]);
+    setIsWaitingForResponse(true);
 
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      // Send as Moltbot protocol agent request
       const agentRequest = {
         type: 'req',
         id: generateId(),
         method: 'agent',
         params: {
           agentId: selectedAgent,
-          modelId: selectedModel,
           message: content,
           idempotencyKey: generateId(),
         }
@@ -246,7 +231,7 @@ export function useGobert() {
     } else {
       setError('Not connected');
     }
-  }, [selectedAgent, selectedModel]);
+  }, [selectedAgent]);
 
   const clearHistory = useCallback(() => {
     setMessages([]);
@@ -262,11 +247,9 @@ export function useGobert() {
     error,
     clearHistory,
     isLoaded,
+    isWaitingForResponse,
     availableAgents: agents,
-    availableModels: models,
     selectedAgent,
-    selectedModel,
-    setSelectedAgent,
-    setSelectedModel
+    setSelectedAgent
   };
 }

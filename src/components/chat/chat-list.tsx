@@ -6,9 +6,10 @@ import { useEffect, useRef } from "react";
 interface ChatListProps {
   messages: Message[];
   gazeTarget?: [number, number];
+  isWaitingForResponse?: boolean;
 }
 
-export function ChatList({ messages, gazeTarget }: ChatListProps) {
+export function ChatList({ messages, gazeTarget, isWaitingForResponse }: ChatListProps) {
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -19,6 +20,8 @@ export function ChatList({ messages, gazeTarget }: ChatListProps) {
 
   // Find the index of the last assistant message
   const lastAssistantIndex = messages.findLastIndex(msg => msg.role === 'assistant');
+  // Find the index of the last user message
+  const lastUserIndex = messages.findLastIndex(msg => msg.role === 'user');
 
   return (
     <ScrollArea className="flex-1 p-4">
@@ -28,6 +31,8 @@ export function ChatList({ messages, gazeTarget }: ChatListProps) {
             key={msg.id}
             message={msg}
             isLatestAssistant={index === lastAssistantIndex}
+            isLatestUser={index === lastUserIndex}
+            isWaitingForResponse={isWaitingForResponse}
             gazeTarget={gazeTarget}
           />
         ))}

@@ -19,12 +19,10 @@ export default function Home() {
     error,
     clearHistory,
     isLoaded,
+    isWaitingForResponse,
     availableAgents,
-    availableModels,
     selectedAgent,
-    selectedModel,
-    setSelectedAgent,
-    setSelectedModel
+    setSelectedAgent
   } = useGobert();
   const [gazeTarget, setGazeTarget] = useState<[number, number]>(DEFAULT_GAZE);
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -99,13 +97,13 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <ChatList messages={messages} gazeTarget={gazeTarget} />
+          <ChatList messages={messages} gazeTarget={gazeTarget} isWaitingForResponse={isWaitingForResponse} />
         )}
       </div>
 
       {/* Error Message */}
       {error && (
-        <div style={{ marginBottom: "50px" }} className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-red-900/80 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
+        <div style={{ marginBottom: "64px" }} className="fixed bottom-24 left-1/2 transform animate-pulse -translate-x-1/2 bg-red-900/80 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
           {error}
         </div>
       )}
@@ -119,11 +117,8 @@ export default function Home() {
             onFocusChange={handleInputFocusChange}
             onCursorPositionChange={handleCursorPositionChange}
             availableAgents={availableAgents}
-            availableModels={availableModels}
             selectedAgent={selectedAgent}
-            selectedModel={selectedModel}
             onAgentChange={setSelectedAgent}
-            onModelChange={setSelectedModel}
           />
           <div className="flex items-center justify-center gap-2 mt-4 text-[10px] uppercase tracking-widest text-white/20 select-none font-medium">
             {isConnected ? (
