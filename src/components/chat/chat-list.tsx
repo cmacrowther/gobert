@@ -1,4 +1,4 @@
-import { Message } from "@/hooks/use-gobert";
+import { Message } from "@/hooks/use-chat";
 import { ChatMessage } from "./chat-message";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect, useRef } from "react";

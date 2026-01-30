@@ -1,7 +1,7 @@
-import { Message } from "@/hooks/use-gobert";
+import { Message } from "@/hooks/use-chat";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { GobertHead } from "@/components/gobert-head";
+import { BotHead } from "@/components/bot-head";
 
 interface ChatMessageProps {
   message: Message;
@@ -20,7 +20,7 @@ export function ChatMessage({ message, isLatestAssistant, isLatestUser, isWaitin
       {!isUser && isLatestAssistant ? (
         <div className="flex-shrink-0 mt-1 w-12 h-12 flex items-center justify-center">
           <div className="w-12 h-12 -ml-1 -mt-1">
-            <GobertHead className="w-full h-full" gazeTarget={gazeTarget} />
+            <BotHead className="w-full h-full" gazeTarget={gazeTarget} />
           </div>
         </div>
       ) : null}

@@ -31,7 +31,7 @@ const MAX_RECONNECT_ATTEMPTS = 10;
 const INITIAL_RECONNECT_DELAY = 1000;
 const MAX_RECONNECT_DELAY = 30000;
 
-export function useGobert() {
+export function useChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +48,7 @@ export function useGobert() {
   // Load from local storage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedMessages = localStorage.getItem('gobert-history');
+      const savedMessages = localStorage.getItem('chat-history');
       if (savedMessages) {
         try {
           // eslint-disable-next-line
@@ -69,7 +69,7 @@ export function useGobert() {
   // Save to local storage whenever messages change
   useEffect(() => {
     if (typeof window !== 'undefined' && messages.length > 0) {
-      localStorage.setItem('gobert-history', JSON.stringify(messages));
+      localStorage.setItem('chat-history', JSON.stringify(messages));
     }
   }, [messages]);
 
@@ -93,7 +93,7 @@ export function useGobert() {
         setIsConnected(true);
         setError(null);
         reconnectAttemptsRef.current = 0; // Reset attempts on successful connection
-        console.log('Connected to Gobert');
+        console.log('Connected to bot');
 
         // Fetch available agents and models from health endpoint
         ws.send(JSON.stringify({
@@ -106,7 +106,7 @@ export function useGobert() {
 
       ws.onclose = () => {
         setIsConnected(false);
-        console.log('Disconnected from Gobert');
+        console.log('Disconnected from bot');
 
         // Attempt to reconnect if not intentionally closed
         if (!isIntentionalCloseRef.current && reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
@@ -168,10 +168,10 @@ export function useGobert() {
 
                 // Check if we're already streaming to an existing message
                 if (streamingMessageIdRef.current) {
-                  // Append to existing message
+                  // Replace with new content (server sends cumulative text, not deltas)
                   setMessages((prev) => prev.map(msg =>
                     msg.id === streamingMessageIdRef.current
-                      ? { ...msg, content: msg.content + content }
+                      ? { ...msg, content: content }
                       : msg
                   ));
                 } else {
@@ -318,7 +318,7 @@ export function useGobert() {
   const clearHistory = useCallback(() => {
     setMessages([]);
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('gobert-history');
+      localStorage.removeItem('chat-history');
     }
   }, []);
 

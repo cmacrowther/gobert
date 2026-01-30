@@ -94,7 +94,7 @@
   }
 }
 
-/* Graceful entrance animation for Gobert head */
+/* Graceful entrance animation for bot head */
 @keyframes fade-in-up {
   0% {
     opacity: 0;

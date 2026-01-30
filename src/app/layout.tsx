@@ -12,9 +12,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const botName = process.env.NEXT_PUBLIC_BOT_NAME || 'Clawdbot';
+
 export const metadata: Metadata = {
-  title: "Gobert Chat",
-  description: "AI Chat Interface for Gobert",
+  title: `${botName} Chat`,
+  description: `AI Chat Interface for ${botName}`,
 };
 
 export default function RootLayout({

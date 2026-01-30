@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUp } from "lucide-react";
 import { useState, FormEvent, useRef, useEffect, useCallback } from "react";
 import { ModelSelector } from "./model-selector";
-import { Agent } from "@/hooks/use-gobert";
+import { Agent } from "@/hooks/use-chat";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -105,7 +105,7 @@ export function ChatInput({
           onSelect={handleSelect}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          placeholder="Message Gobert..."
+          placeholder={`Message ${process.env.NEXT_PUBLIC_BOT_NAME || 'Clawdbot'}...`}
           disabled={disabled}
           rows={1}
           className="flex-1 bg-transparent border-none outline-none focus:ring-0 focus:outline-none resize-none max-h-[200px] py-3 px-2 text-base text-white placeholder:text-zinc-400 min-h-[52px]"

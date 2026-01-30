@@ -103,13 +103,13 @@ function HeadModel({ mouse }: { mouse: React.MutableRefObject<[number, number]> 
 // Default offset: looking slightly down and to the head's left
 export const DEFAULT_GAZE: [number, number] = [-0.3, -0.25];
 
-interface GobertHeadProps {
+interface BotHeadProps {
   className?: string;
   style?: React.CSSProperties;
   gazeTarget?: [number, number];
 }
 
-export function GobertHead({ className, style, gazeTarget }: GobertHeadProps) {
+export function BotHead({ className, style, gazeTarget }: BotHeadProps) {
   const gaze = useRef<[number, number]>(gazeTarget ?? DEFAULT_GAZE);
 
   // Update gaze ref when gazeTarget prop changes
