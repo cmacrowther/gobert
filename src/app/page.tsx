@@ -51,11 +51,8 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center bg-background text-foreground relative">
       {/* Header */}
       <header className="fixed top-0 w-full flex items-center justify-between p-4 z-10 bg-background/80 backdrop-blur-md">
-        <div className="flex items-center gap-2">
-          <h1 className="text-xl font-bold tracking-tight">Gobert. <span className="text-muted-foreground px-1 font-light">Web Chat</span></h1>
-          {isConnected ? (
-            <span className="font-bold tracking-tighter animate-pulse" style={{ marginLeft: "-0.45rem" }}>_</span>
-          ) : ""}
+        <div className="flex items-center inline-flex gap-2">
+          <h1 className="text-xl font-bold tracking-tight inline-flex items-center">Gobert. <span style={{ marginLeft: "6px" }} className="gradient-badge inline-flex items-center rounded-md px-2 py-1 text-sm font-light">Web Chat</span></h1>
         </div>
         <Button variant="ghost" size="icon" onClick={clearHistory} title="Clear History" className="hover:bg-zinc-800 rounded-full">
           <Trash2 className="h-5 w-5 text-muted-foreground" />
@@ -85,13 +82,9 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col items-center" style={{ marginTop: "-50px" }}>
-              <h1 className="text-3xl font-bold tracking-tight animate-fade-in-up animate-delay-100">
-                Gobert. <span className="text-muted-foreground px-1 font-light">Web Chat</span>
-
-                {isConnected ? (
-                  <span className="font-bold tracking-tighter animate-pulse">_</span>
-                ) : ""}
+            <div className="flex flex-col items-center" style={{ marginTop: "-45px" }}>
+              <h1 className="text-3xl font-bold tracking-tight animate-fade-in-up animate-delay-100 inline-flex items-center gap-2">
+                Gobert. <span className="gradient-badge inline-flex items-center rounded-md px-2 py-1 text-lg font-light">Web Chat</span>
               </h1>
               <p className="text-lg font-light text-muted-foreground animate-fade-in-up animate-delay-200 mt-1">How can I help you today?</p>
             </div>
@@ -102,11 +95,12 @@ export default function Home() {
       </div>
 
       {/* Error Message */}
-      {error && (
-        <div style={{ marginBottom: "64px" }} className="fixed bottom-24 left-1/2 transform animate-pulse -translate-x-1/2 bg-red-900/80 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
-          {error}
+
+      {!isConnected ? (
+        <div style={{ marginBottom: "65px" }} className="fixed bottom-24 left-1/2 transform animate-pulse -translate-x-1/2 bg-red-900/80 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
+          Could not connect to Gobert. Please ensure it is running.
         </div>
-      )}
+      ) : ""}
 
       {/* Input Area - Floating at bottom */}
       <div className="fixed bottom-0 w-full bg-gradient-to-t from-background via-background to-transparent pt-10 pb-6 z-20 flex justify-center px-4">
