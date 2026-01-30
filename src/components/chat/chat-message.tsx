@@ -22,7 +22,7 @@ export function ChatMessage({ message, isLatestAssistant, isLatestUser, isWaitin
     <div className={cn("flex w-full items-start gap-2 mb-6", isUser && "justify-end")}>
       {!isUser && isLatestAssistant ? (
         <div className="flex-shrink-0 mt-1 w-12 h-12 flex items-center justify-center relative">
-          <ThinkingBubble visible={showBotThinking ?? false} className="top-[-14px]" />
+          <ThinkingBubble visible={showBotThinking ?? false} className="top-[-8px] scale-75 origin-center thinking-bubble-small" />
           <div className="w-12 h-12 -ml-1 -mt-1">
             <BotHead className="w-full h-full" gazeTarget={gazeTarget} />
           </div>
