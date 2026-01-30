@@ -4,10 +4,38 @@ import { useState, useCallback, useEffect } from "react";
 import { useChat } from "@/hooks/use-chat";
 import { ChatInput } from "@/components/chat/chat-input";
 import { ChatList } from "@/components/chat/chat-list";
-import { Loader2, Trash2 } from "lucide-react";
+import {
+  Loader2,
+  Trash2,
+  Utensils,
+  Gamepad2,
+  Code,
+  Music,
+  Plane,
+  BookOpen,
+  Lightbulb,
+  Film,
+  Sun,
+  Palette,
+  type LucideIcon
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BotHead, DEFAULT_GAZE } from "@/components/bot-head";
 import { ThinkingBubble } from "@/components/thinking-bubble";
+
+// Topic icons the bot might be "thinking about"
+const THINKING_TOPICS: LucideIcon[] = [
+  Utensils,    // Food & Cooking
+  Gamepad2,    // Gaming
+  Code,        // Programming
+  Music,       // Music
+  Plane,       // Travel
+  BookOpen,    // Learning
+  Lightbulb,   // Ideas
+  Film,        // Movies
+  Sun,         // Weather
+  Palette,     // Creative/Art
+];
 
 // Gaze target when looking at the text input (looking down)
 const INPUT_GAZE_BASE: [number, number] = [0, -0.8];
@@ -30,31 +58,56 @@ export default function Home() {
   const [gazeTarget, setGazeTarget] = useState<[number, number]>(DEFAULT_GAZE);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showThinkingBubble, setShowThinkingBubble] = useState(false);
+  const [currentTopicIcon, setCurrentTopicIcon] = useState<LucideIcon | undefined>(undefined);
+  const [showIcon, setShowIcon] = useState(false);
 
   // Periodic thinking bubble on homepage (no chat active)
   useEffect(() => {
     // Only run when there are no messages (empty state)
     if (messages.length > 0) {
       setShowThinkingBubble(false);
+      setShowIcon(false);
       return;
     }
 
+    let timeoutId: NodeJS.Timeout;
+    let iconTimeoutId: NodeJS.Timeout;
+    let hideTimeoutId: NodeJS.Timeout;
+
     const scheduleNextBubble = () => {
-      // Random interval between 5-8 seconds
+      // Random interval between 5-8 seconds between cycles
       const interval = 5000 + Math.random() * 3000;
-      return setTimeout(() => {
+      timeoutId = setTimeout(() => {
+        // Pick a random topic icon
+        const randomIcon = THINKING_TOPICS[Math.floor(Math.random() * THINKING_TOPICS.length)];
+        setCurrentTopicIcon(randomIcon);
+
+        // Show bubble with dots first
         setShowThinkingBubble(true);
-        // Hide after 2.5 seconds
-        setTimeout(() => {
+        setShowIcon(false);
+
+        // After 2 seconds of dots bouncing, fade in the icon
+        iconTimeoutId = setTimeout(() => {
+          setShowIcon(true);
+        }, 2000);
+
+        // Hide after 4 seconds total (2s dots + 2s icon)
+        hideTimeoutId = setTimeout(() => {
           setShowThinkingBubble(false);
+          setShowIcon(false);
           // Schedule next appearance
           scheduleNextBubble();
-        }, 2500);
+        }, 4000);
       }, interval);
     };
 
-    const timeoutId = scheduleNextBubble();
-    return () => clearTimeout(timeoutId);
+    scheduleNextBubble();
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(iconTimeoutId);
+      clearTimeout(hideTimeoutId);
+    };
   }, [messages.length]);
 
   // Update gaze when input focus changes
@@ -95,7 +148,7 @@ export default function Home() {
           <div className="flex-1 flex flex-col items-center justify-center text-center">
             {/* Floating Head for Empty State */}
             <div className="relative w-[200px] h-[200px] flex items-center justify-center animate-fade-in-up -mb-2">
-              <ThinkingBubble visible={showThinkingBubble} />
+              <ThinkingBubble visible={showThinkingBubble} icon={currentTopicIcon} showIcon={showIcon} />
               <BotHead className="w-full h-full" style={{ marginLeft: "6px" }} gazeTarget={gazeTarget} />
               {/* Orbiting Electrons - Atomic Model */}
               <div className="orbit-container" style={{ zIndex: "-100" }}>
@@ -139,7 +192,7 @@ export default function Home() {
         <div className="w-full max-w-3xl">
           <ChatInput
             onSend={sendMessage}
-            disabled={!isConnected}
+            disabled={isConnected}
             onFocusChange={handleInputFocusChange}
             onCursorPositionChange={handleCursorPositionChange}
             availableAgents={availableAgents}

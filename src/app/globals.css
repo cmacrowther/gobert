@@ -349,14 +349,13 @@
 @keyframes thinking-dot-bounce {
 
   0%,
-  60%,
   100% {
     transform: translateY(0);
     opacity: 0.5;
   }
 
-  30% {
-    transform: translateY(-4px);
+  50% {
+    transform: translateY(-3px);
     opacity: 1;
   }
 }
@@ -364,7 +363,7 @@
 @keyframes thinking-bubble-fade-in {
   0% {
     opacity: 0;
-    transform: translateY(8px) scale(0.9);
+    transform: translateY(5px) scale(0.95);
   }
 
   100% {
@@ -381,7 +380,7 @@
 
   100% {
     opacity: 0;
-    transform: translateY(8px) scale(0.9);
+    transform: translateY(5px) scale(0.95);
   }
 }
 
@@ -394,9 +393,10 @@
   backdrop-filter: blur(8px);
   border: 0px solid transparent;
   border-radius: 12px;
-  padding: 6px 10px;
+  padding: 8px 12px;
   z-index: 200;
   pointer-events: none;
+  transition: all 0.5s ease-out;
 }
 
 /* Speech bubble tail */
@@ -414,11 +414,11 @@
 }
 
 .thinking-bubble-visible {
-  animation: thinking-bubble-fade-in 0.3s ease-out forwards;
+  animation: thinking-bubble-fade-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 .thinking-bubble-hidden {
-  animation: thinking-bubble-fade-out 0.3s ease-out forwards;
+  animation: thinking-bubble-fade-out 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   pointer-events: none;
 }
 
@@ -433,5 +433,36 @@
   height: 6px;
   background: rgba(255, 255, 255, 0.7);
   border-radius: 50%;
-  animation: thinking-dot-bounce 1s ease-in-out infinite;
+  animation: thinking-dot-bounce 1.4s ease-in-out infinite;
+}
+
+/* Thinking icon animation - smooth fade in */
+@keyframes thinking-icon-fade-in {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Thinking icon animation - gentle rock */
+@keyframes thinking-icon-rock {
+
+  0%,
+  100% {
+    transform: rotate(-10deg);
+  }
+
+  50% {
+    transform: rotate(10deg);
+  }
+}
+
+.thinking-icon {
+  color: #ffffffb3;
+  animation: thinking-icon-rock 2s ease-in-out infinite;
 }
