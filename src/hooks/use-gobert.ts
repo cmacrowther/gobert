@@ -200,14 +200,14 @@ export function useGobert() {
 
               if (parsed.payload.agents && Array.isArray(parsed.payload.agents)) {
                 console.log('Raw agents from health:', parsed.payload.agents);
-                const agentList = parsed.payload.agents.map((a: { id?: string; name?: string; description?: string } | string) => {
+                // API returns agents with `agentId` field, not `id`
+                const agentList = parsed.payload.agents.map((a: { agentId?: string; id?: string; name?: string; description?: string } | string) => {
                   if (typeof a === 'string') {
                     return { id: a, name: a };
                   }
-                  // IMPORTANT: Only use a.id for the agent ID - never fall back to name
-                  // The name should only be used for display purposes
-                  const agentId = a.id || 'unknown';
-                  const agentName = a.name || a.id || 'Unknown Agent';
+                  // Use agentId (API format) or id as fallback
+                  const agentId = a.agentId || a.id || 'unknown';
+                  const agentName = a.name || agentId || 'Unknown Agent';
                   console.log(`Mapping agent: id="${agentId}", name="${agentName}"`);
                   return { id: agentId, name: agentName, description: a.description };
                 });
