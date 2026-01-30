@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="gobert-ui.png" alt="GobertUI Logo" width="200" />
+<img src="img/gobert-ui.png" alt="GobertUI Logo" width="200" />
 
 # GobertUI
 ### A Clawdbot Web Chat Interface
@@ -15,6 +15,13 @@
 A modern, immersive AI chat interface built with Next.js, Tailwind CSS, and React Three Fiber. <br />
 Designed to interface with a local or remote Clawdbot instance.
 
+</div>
+
+## Screenshots
+
+<div align="center">
+  <img src="img/screen-1.png" alt="Screenshot 1" width="45%" />
+  <img src="img/screen-2.png" alt="Screenshot 2" width="45%" />
 </div>
 
 ## Features
