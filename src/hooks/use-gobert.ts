@@ -26,6 +26,11 @@ function generateId(): string {
   });
 }
 
+// Reconnection configuration
+const MAX_RECONNECT_ATTEMPTS = 10;
+const INITIAL_RECONNECT_DELAY = 1000;
+const MAX_RECONNECT_DELAY = 30000;
+
 export function useGobert() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
@@ -35,6 +40,9 @@ export function useGobert() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<string>('');
   const wsRef = useRef<WebSocket | null>(null);
+  const reconnectAttemptsRef = useRef(0);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isIntentionalCloseRef = useRef(false);
 
   // Load from local storage on mount
   useEffect(() => {
@@ -69,135 +77,184 @@ export function useGobert() {
     // Use the proxy endpoint - this connects to our server which proxies to Clawdbot
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/api/ws`;
-    const ws = new WebSocket(wsUrl);
-    wsRef.current = ws;
 
-    ws.onopen = () => {
-      setIsConnected(true);
-      setError(null);
-      console.log('Connected to Gobert');
+    const connect = () => {
+      // Clear any existing timeout
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
 
-      // Fetch available agents and models from health endpoint
-      ws.send(JSON.stringify({
-        type: 'req',
-        id: generateId(),
-        method: 'health',
-        params: {}
-      }));
-    };
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
 
-    ws.onclose = () => {
-      setIsConnected(false);
-      console.log('Disconnected from Gobert');
-    };
+      ws.onopen = () => {
+        setIsConnected(true);
+        setError(null);
+        reconnectAttemptsRef.current = 0; // Reset attempts on successful connection
+        console.log('Connected to Gobert');
 
-    ws.onerror = (event) => {
-      console.error('WebSocket error:', event);
-      setError('Connection error');
-      setIsConnected(false);
-    };
+        // Fetch available agents and models from health endpoint
+        ws.send(JSON.stringify({
+          type: 'req',
+          id: generateId(),
+          method: 'health',
+          params: {}
+        }));
+      };
 
-    ws.onmessage = (event) => {
-      const text = event.data;
+      ws.onclose = () => {
+        setIsConnected(false);
+        console.log('Disconnected from Gobert');
 
-      // Try to parse as JSON (Moltbot protocol)
-      try {
-        const parsed = JSON.parse(text);
+        // Attempt to reconnect if not intentionally closed
+        if (!isIntentionalCloseRef.current && reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
+          const delay = Math.min(
+            INITIAL_RECONNECT_DELAY * Math.pow(2, reconnectAttemptsRef.current),
+            MAX_RECONNECT_DELAY
+          );
+          reconnectAttemptsRef.current += 1;
+          console.log(`Attempting to reconnect in ${delay}ms (attempt ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})...`);
+          setError(`Reconnecting... (attempt ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})`);
 
-        // Ignore system events (health, tick, presence, shutdown)
-        if (parsed.type === 'event') {
-          const ignoredEvents = ['health', 'tick', 'presence', 'shutdown'];
-          if (ignoredEvents.includes(parsed.event)) {
-            // console.log(`Ignoring system event: ${parsed.event}`);
-            return;
-          }
-
-          // Handle agent events (streaming responses)
-          if (parsed.event === 'agent') {
-            const payload = parsed.payload;
-            console.log('Received agent event:', payload);
-
-            // Extract text from the payload data
-            // Based on AgentEventSchema: { stream: string, data: Record<string, any> }
-            const content = payload?.data?.text || payload?.data?.chunk || payload?.data?.message;
-
-            if (content && typeof content === 'string') {
-              // Filter out "completed" messages
-              if (content.trim().toLowerCase() === 'completed') return;
-
-              const newMessage: Message = {
-                id: generateId(),
-                role: 'assistant',
-                content: content,
-                timestamp: Date.now(),
-              };
-              setMessages((prev) => [...prev, newMessage]);
-              setIsWaitingForResponse(false);
-            }
-            return;
-          }
+          reconnectTimeoutRef.current = setTimeout(() => {
+            connect();
+          }, delay);
+        } else if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
+          setError('Unable to connect. Please refresh the page.');
+          console.error('Max reconnection attempts reached');
         }
+      };
 
-        // Handle response frames (final agent response)
-        if (parsed.type === 'res' && parsed.ok && parsed.payload?.summary) {
-          const content = parsed.payload.summary;
-          // Filter out "completed" messages
-          if (content.trim().toLowerCase() === 'completed') return;
+      ws.onerror = (event) => {
+        console.error('WebSocket error:', event);
+        setError('Connection error');
+        setIsConnected(false);
+        // Note: onclose will be called after onerror, which will handle reconnection
+      };
+
+      ws.onmessage = (event) => {
+        const text = event.data;
+
+        // Try to parse as JSON (Moltbot protocol)
+        try {
+          const parsed = JSON.parse(text);
+
+          // Ignore system events (health, tick, presence, shutdown)
+          if (parsed.type === 'event') {
+            const ignoredEvents = ['health', 'tick', 'presence', 'shutdown'];
+            if (ignoredEvents.includes(parsed.event)) {
+              // console.log(`Ignoring system event: ${parsed.event}`);
+              return;
+            }
+
+            // Handle agent events (streaming responses)
+            if (parsed.event === 'agent') {
+              const payload = parsed.payload;
+              console.log('Received agent event:', payload);
+
+              // Extract text from the payload data
+              // Based on AgentEventSchema: { stream: string, data: Record<string, any> }
+              const content = payload?.data?.text || payload?.data?.chunk || payload?.data?.message;
+
+              if (content && typeof content === 'string') {
+                // Filter out "completed" messages
+                if (content.trim().toLowerCase() === 'completed') return;
+
+                const newMessage: Message = {
+                  id: generateId(),
+                  role: 'assistant',
+                  content: content,
+                  timestamp: Date.now(),
+                };
+                setMessages((prev) => [...prev, newMessage]);
+                setIsWaitingForResponse(false);
+              }
+              return;
+            }
+          }
+
+          // Handle response frames (final agent response)
+          if (parsed.type === 'res' && parsed.ok && parsed.payload?.summary) {
+            const content = parsed.payload.summary;
+            // Filter out "completed" messages
+            if (content.trim().toLowerCase() === 'completed') return;
+
+            const newMessage: Message = {
+              id: generateId(),
+              role: 'assistant',
+              content: content,
+              timestamp: Date.now(),
+            };
+            setMessages((prev) => [...prev, newMessage]);
+            setIsWaitingForResponse(false);
+            return;
+          }
+
+          // Handle health response (contains agents and models)
+          if (parsed.type === 'res' && parsed.ok && parsed.payload) {
+            // Check if this is a health response by looking for typical health fields
+            if (parsed.payload.agents || parsed.payload.models || parsed.payload.version) {
+              console.log('Received health response:', parsed.payload);
+              console.log('Health payload keys:', Object.keys(parsed.payload));
+
+              if (parsed.payload.agents && Array.isArray(parsed.payload.agents)) {
+                console.log('Raw agents from health:', parsed.payload.agents);
+                const agentList = parsed.payload.agents.map((a: { id?: string; name?: string; description?: string } | string) => {
+                  if (typeof a === 'string') {
+                    return { id: a, name: a };
+                  }
+                  // IMPORTANT: Only use a.id for the agent ID - never fall back to name
+                  // The name should only be used for display purposes
+                  const agentId = a.id || 'unknown';
+                  const agentName = a.name || a.id || 'Unknown Agent';
+                  console.log(`Mapping agent: id="${agentId}", name="${agentName}"`);
+                  return { id: agentId, name: agentName, description: a.description };
+                });
+                // Filter out agents with 'unknown' id as they won't work
+                const validAgents = agentList.filter((agent: Agent) => agent.id !== 'unknown');
+                console.log('Valid agents:', validAgents);
+                setAgents(validAgents);
+                if (validAgents.length > 0) {
+                  setSelectedAgent(validAgents[0].id);
+                }
+              }
+              return;
+            }
+          }
+
+          // Log other messages for debugging
+          console.log('Unhandled message:', parsed);
+        } catch (e) {
+          // Not JSON, treat as plain text response
+          // Filter out "completed" messages (case-insensitive)
+          if (text.trim().toLowerCase() === 'completed') {
+            return;
+          }
 
           const newMessage: Message = {
             id: generateId(),
             role: 'assistant',
-            content: content,
+            content: text,
             timestamp: Date.now(),
           };
           setMessages((prev) => [...prev, newMessage]);
           setIsWaitingForResponse(false);
-          return;
         }
-
-        // Handle health response (contains agents and models)
-        if (parsed.type === 'res' && parsed.ok && parsed.payload) {
-          // Check if this is a health response by looking for typical health fields
-          if (parsed.payload.agents || parsed.payload.models || parsed.payload.version) {
-            console.log('Received health response:', parsed.payload);
-            console.log('Health payload keys:', Object.keys(parsed.payload));
-
-            if (parsed.payload.agents && Array.isArray(parsed.payload.agents)) {
-              const agentList = parsed.payload.agents.map((a: { id?: string; name?: string; description?: string } | string) =>
-                typeof a === 'string' ? { id: a, name: a } : { id: a.id || a.name || 'unknown', name: a.name || a.id || 'Unknown Agent', description: a.description }
-              );
-              setAgents(agentList);
-              if (agentList.length > 0) {
-                setSelectedAgent(agentList[0].id);
-              }
-            }
-            return;
-          }
-        }
-
-        // Log other messages for debugging
-        console.log('Unhandled message:', parsed);
-      } catch (e) {
-        // Not JSON, treat as plain text response
-        // Filter out "completed" messages (case-insensitive)
-        if (text.trim().toLowerCase() === 'completed') {
-          return;
-        }
-
-        const newMessage: Message = {
-          id: generateId(),
-          role: 'assistant',
-          content: text,
-          timestamp: Date.now(),
-        };
-        setMessages((prev) => [...prev, newMessage]);
-        setIsWaitingForResponse(false);
-      }
+      };
     };
 
+    // Initial connection
+    connect();
+
     return () => {
-      if (ws.readyState === 1 || ws.readyState === 0) {
-        ws.close();
+      isIntentionalCloseRef.current = true;
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+      if (wsRef.current && (wsRef.current.readyState === 1 || wsRef.current.readyState === 0)) {
+        wsRef.current.close();
       }
     };
   }, []);

@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { useGobert } from "@/hooks/use-gobert";
 import { ChatInput } from "@/components/chat/chat-input";
 import { ChatList } from "@/components/chat/chat-list";
-import { Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GobertHead, DEFAULT_GAZE } from "@/components/gobert-head";
 
@@ -97,8 +97,9 @@ export default function Home() {
       {/* Error Message */}
 
       {!isConnected ? (
-        <div style={{ marginBottom: "65px" }} className="fixed bottom-24 left-1/2 transform animate-pulse -translate-x-1/2 bg-red-900/80 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
-          Could not connect to Gobert. Please ensure it is running.
+        <div style={{ marginBottom: "65px" }} className="fixed inline-flex items-center bottom-24 left-1/2 transform animate-pulse -translate-x-1/2 bg-red-900/80 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <span>Reconnecting...</span>
         </div>
       ) : ""}
 
@@ -118,12 +119,12 @@ export default function Home() {
             {isConnected ? (
               <span className="flex items-center gap-1.5">
                 <span className="w-1 h-1 rounded-full animate-pulse bg-emerald-500/50 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                Connected to Clawdbot instance at {process.env.NEXT_PUBLIC_CLAWDBOT_URL || "ws://localhost:18789"}
+                Connected at {process.env.NEXT_PUBLIC_CLAWDBOT_URL || "ws://localhost:18789"}
               </span>
             ) : (
               <span className="flex items-center gap-1.5">
                 <span className="w-1 h-1 rounded-full bg-red-500/50 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                Could not connect to Clawdbot instance at {process.env.NEXT_PUBLIC_CLAWDBOT_URL || "ws://localhost:18789"}
+                Could not connect to {process.env.NEXT_PUBLIC_CLAWDBOT_URL || "ws://localhost:18789"}
               </span>
             )}
           </div>
