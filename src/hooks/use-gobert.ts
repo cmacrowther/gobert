@@ -39,8 +39,8 @@ export function useGobert() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [models, setModels] = useState<Model[]>([]);
-  const [selectedAgent, setSelectedAgent] = useState<string>('general-agent');
-  const [selectedModel, setSelectedModel] = useState<string>('claude-3-opus');
+  const [selectedAgent, setSelectedAgent] = useState<string>('');
+  const [selectedModel, setSelectedModel] = useState<string>('');
   const wsRef = useRef<WebSocket | null>(null);
 
   // Load from local storage on mount
@@ -165,6 +165,7 @@ export function useGobert() {
           // Check if this is a health response by looking for typical health fields
           if (parsed.payload.agents || parsed.payload.models || parsed.payload.version) {
             console.log('Received health response:', parsed.payload);
+            console.log('Health payload keys:', Object.keys(parsed.payload));
 
             if (parsed.payload.agents && Array.isArray(parsed.payload.agents)) {
               const agentList = parsed.payload.agents.map((a: { id?: string; name?: string; description?: string } | string) =>
