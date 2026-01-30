@@ -13,7 +13,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)
 
 A modern, immersive AI chat interface built with Next.js, Tailwind CSS, and React Three Fiber. <br />
-Designed to interface with a local or remote Clawdbot instance.
+Designed to interface with a local (or at your own risk, remote) Clawdbot instance.
 
 </div>
 
