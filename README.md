@@ -1,5 +1,12 @@
 # GobertUI - A Clawdbot Web Chat Interface
 
+![Next.js](https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)
+
 A modern, immersive AI chat interface built with Next.js, Tailwind CSS, and React Three Fiber. Designed to interface with a local or remote Clawdbot instance.
 
 ## Features
