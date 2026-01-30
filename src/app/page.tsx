@@ -56,7 +56,7 @@ export default function Home() {
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-bold tracking-tight">Gobert. <span className="text-muted-foreground px-1 font-light">Web Chat</span></h1>
           {isConnected ? (
-            <span className="font-bold tracking-tighter animate-pulse" style={{ marginLeft: "-0.2rem" }}>_</span>
+            <span className="font-bold tracking-tighter animate-pulse" style={{ marginLeft: "-0.45rem" }}>_</span>
           ) : ""}
         </div>
         <Button variant="ghost" size="icon" onClick={clearHistory} title="Clear History" className="hover:bg-zinc-800 rounded-full">
@@ -88,9 +88,12 @@ export default function Home() {
               </div>
             </div>
             <div className="flex flex-col items-center" style={{ marginTop: "-50px" }}>
-              <h1 className="text-3xl font-bold tracking-tight animate-fade-in-up animate-delay-100">Gobert. <span className="text-muted-foreground px-1 font-light">Web Chat</span></h1>{isConnected ? (
-                <span className="font-bold tracking-tighter animate-pulse" style={{ marginLeft: "-0.2rem" }}>_</span>
-              ) : ""}
+              <h1 className="text-3xl font-bold tracking-tight animate-fade-in-up animate-delay-100">
+                Gobert. <span className="text-muted-foreground px-1 font-light">Web Chat</span>
+                {isConnected ? (
+                  <span className="font-bold tracking-tighter animate-pulse" style={{ marginLeft: "-0.45rem" }}>_</span>
+                ) : ""}
+              </h1>
               <p className="text-lg font-light text-muted-foreground animate-fade-in-up animate-delay-200 mt-1">How can I help you today?</p>
             </div>
           </div>

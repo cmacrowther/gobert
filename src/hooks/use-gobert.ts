@@ -88,14 +88,14 @@ export function useGobert() {
       ws.send(JSON.stringify({
         type: 'req',
         id: generateId(),
-        method: 'clawdbot.list_agents',
+        method: 'agent.list',
         params: {}
       }));
 
       ws.send(JSON.stringify({
         type: 'req',
         id: generateId(),
-        method: 'clawdbot.list_models',
+        method: 'model.list',
         params: {}
       }));
     };
