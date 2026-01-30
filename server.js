@@ -93,7 +93,7 @@ app.prepare().then(() => {
                                     mode: 'webchat'
                                 },
                                 role: 'operator',
-                                scopes: ['operator.read', 'operator.write'],
+                                scopes: ['operator.read', 'operator.write', 'operator.admin'],
                                 caps: [],
                                 commands: [],
                                 permissions: {},
