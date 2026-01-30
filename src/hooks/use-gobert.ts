@@ -43,6 +43,7 @@ export function useGobert() {
   const reconnectAttemptsRef = useRef(0);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isIntentionalCloseRef = useRef(false);
+  const streamingMessageIdRef = useRef<string | null>(null);
 
   // Load from local storage on mount
   useEffect(() => {
@@ -159,15 +160,32 @@ export function useGobert() {
 
               if (content && typeof content === 'string') {
                 // Filter out "completed" messages
-                if (content.trim().toLowerCase() === 'completed') return;
+                if (content.trim().toLowerCase() === 'completed') {
+                  // Clear streaming state when stream completes
+                  streamingMessageIdRef.current = null;
+                  return;
+                }
 
-                const newMessage: Message = {
-                  id: generateId(),
-                  role: 'assistant',
-                  content: content,
-                  timestamp: Date.now(),
-                };
-                setMessages((prev) => [...prev, newMessage]);
+                // Check if we're already streaming to an existing message
+                if (streamingMessageIdRef.current) {
+                  // Append to existing message
+                  setMessages((prev) => prev.map(msg =>
+                    msg.id === streamingMessageIdRef.current
+                      ? { ...msg, content: msg.content + content }
+                      : msg
+                  ));
+                } else {
+                  // Create a new message for the start of the stream
+                  const newMessageId = generateId();
+                  streamingMessageIdRef.current = newMessageId;
+                  const newMessage: Message = {
+                    id: newMessageId,
+                    role: 'assistant',
+                    content: content,
+                    timestamp: Date.now(),
+                  };
+                  setMessages((prev) => [...prev, newMessage]);
+                }
                 setIsWaitingForResponse(false);
               }
               return;
@@ -178,7 +196,13 @@ export function useGobert() {
           if (parsed.type === 'res' && parsed.ok && parsed.payload?.summary) {
             const content = parsed.payload.summary;
             // Filter out "completed" messages
-            if (content.trim().toLowerCase() === 'completed') return;
+            if (content.trim().toLowerCase() === 'completed') {
+              streamingMessageIdRef.current = null;
+              return;
+            }
+
+            // Clear streaming state when we get a final response
+            streamingMessageIdRef.current = null;
 
             const newMessage: Message = {
               id: generateId(),
@@ -269,7 +293,8 @@ export function useGobert() {
       timestamp: Date.now(),
     };
 
-    // Optimistically add user message
+    // Optimistically add user message and reset streaming state for new response
+    streamingMessageIdRef.current = null;
     setMessages((prev) => [...prev, newMessage]);
     setIsWaitingForResponse(true);
 

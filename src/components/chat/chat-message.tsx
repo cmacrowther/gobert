@@ -37,10 +37,15 @@ export function ChatMessage({ message, isLatestAssistant, isLatestUser, isWaitin
       </div>
 
       {isUser && (
-        <Avatar className={cn("h-10 w-10 mt-1", showLoadingBorder ? "avatar-loading" : "border border-white/10")}>
-          <AvatarImage src="/user-avatar.jpg" />
-          <AvatarFallback className="bg-zinc-700 text-zinc-300 text-xs">U</AvatarFallback>
-        </Avatar>
+        <div className="relative h-10 w-10 mt-1 mr-1 overflow-visible">
+          {showLoadingBorder && (
+            <div className="absolute inset-[-3px] rounded-full animate-spin-slow bg-gradient-conic" />
+          )}
+          <Avatar className={cn("h-10 w-10 relative", showLoadingBorder ? "border border-black" : "border border-white/10")}>
+            <AvatarImage src="/user-avatar.jpg" />
+            <AvatarFallback className="bg-zinc-700 text-zinc-300 text-xs">U</AvatarFallback>
+          </Avatar>
+        </div>
       )}
     </div>
   );
