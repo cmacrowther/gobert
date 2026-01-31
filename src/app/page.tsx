@@ -137,7 +137,7 @@ export default function Home() {
         <div className="flex items-center inline-flex gap-2">
           <h1 className="text-xl font-bold tracking-tight inline-flex items-center">{BOT_NAME}. <span style={{ marginLeft: "6px" }} className="gradient-badge inline-flex items-center rounded-md px-2 py-1 text-sm font-light">Web Chat</span></h1>
         </div>
-        <Button variant="ghost" size="icon" onClick={clearHistory} title="Clear History" className="hover:bg-zinc-800 rounded-full">
+        <Button variant="ghost" size="icon" onClick={clearHistory} title="Clear History" aria-label="Clear chat history" className="hover:bg-zinc-800 rounded-full">
           <Trash2 className="h-5 w-5 text-muted-foreground" />
         </Button>
       </header>
