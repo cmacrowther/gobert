@@ -69,9 +69,11 @@ COPY --from=builder /app/.next/static ./.next/static
 # Copy our custom server.js (overwrites Next.js standalone server.js)
 COPY --from=builder /app/server.js ./server.js
 
+# Install pnpm to match the project's package manager
+RUN npm install -g pnpm
+
 # Install ws package for WebSocket proxy (needed at runtime)
-# We can use npm here since it's just one package and we don't need pnpm in the final image
-RUN npm install ws --omit=dev
+RUN pnpm add ws
 
 # Set correct permissions
 RUN chown -R nextjs:nodejs /app
