@@ -33,44 +33,43 @@ export function ChatMessage({ message, isLatestAssistant, isLatestUser, isWaitin
   };
 
   return (
-    <div className={cn("flex w-full items-start gap-4 mb-8 group", isUser && "justify-end")}>
-      {!isUser && (
-        <div className="flex-shrink-0 mt-1 w-12 h-12 flex items-center justify-center relative">
-          {isLatestAssistant ? (
-            <>
-              <ThinkingBubble visible={showBotThinking ?? false} className="top-[-8px] scale-75 origin-center thinking-bubble-small" />
-              <div className="w-12 h-12 -ml-1 -mt-1">
-                <BotHead className="w-full h-full" gazeTarget={gazeTarget} />
-              </div>
-            </>
-          ) : (
-            // Placeholder to maintain vertical alignment for previous messages
-            <div className="w-12 h-12" />
-          )}
-        </div>
-      )}
-
+    <div className={cn("flex w-full items-start gap-2 mb-4 group", isUser ? "justify-end" : "flex-col")}>
       <div
         className={cn(
-          "max-w-[80%] leading-relaxed text-base",
+          "leading-relaxed text-base relative",
           isUser
-            ? "bg-zinc-800 text-zinc-100 px-6 py-4 rounded-[26px] rounded-br-none"
-            : "text-zinc-300 py-3 pl-1"
+            ? "max-w-[80%] bg-zinc-800 text-zinc-100 px-5 py-3 rounded-[26px] rounded-br-none"
+            : "w-full text-zinc-300 py-1"
         )}
       >
-        <p className="whitespace-pre-wrap">{message.content}</p>
+        <div className="flex justify-between items-start gap-4">
+          <p className="whitespace-pre-wrap">{message.content}</p>
+          {!isUser && (
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-500 hover:text-zinc-300 flex-shrink-0 h-6 w-6"
+              onClick={handleCopy}
+              aria-label={isCopied ? "Copied" : "Copy message"}
+            >
+              {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            </Button>
+          )}
+        </div>
       </div>
 
-      {!isUser && (
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-500 hover:text-zinc-300 mt-2 flex-shrink-0"
-          onClick={handleCopy}
-          aria-label={isCopied ? "Copied" : "Copy message"}
-        >
-          {isCopied ? <Check /> : <Copy />}
-        </Button>
+      {!isUser && isLatestAssistant && (
+        <div className="flex items-center gap-3 mt-1 pl-1 fade-in">
+          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center relative">
+            <ThinkingBubble visible={showBotThinking ?? false} className="top-[-8px] scale-75 origin-center thinking-bubble-small" />
+            <div className="w-10 h-10 -ml-1 -mt-1">
+              <BotHead className="w-full h-full" gazeTarget={gazeTarget} />
+            </div>
+          </div>
+          <span className="text-xs text-zinc-500 font-medium">
+            {showBotThinking ? "Thinking..." : "Gobert took 2s to reply"}
+          </span>
+        </div>
       )}
 
       {isUser && (
