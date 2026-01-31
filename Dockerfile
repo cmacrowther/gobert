@@ -11,11 +11,14 @@ RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
+# Install pnpm
+RUN npm install -g pnpm
+
 # Copy package files for dependency installation
-COPY package.json package-lock.json* ./
+COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 # ==========================================
 # Stage 2: Builder
@@ -30,6 +33,9 @@ ENV NEXT_PUBLIC_BOT_HEAD=$NEXT_PUBLIC_BOT_HEAD
 
 WORKDIR /app
 
+# Install pnpm
+RUN npm install -g pnpm
+
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -38,7 +44,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build the application
-RUN npm run build
+RUN pnpm run build
 
 # ==========================================
 # Stage 3: Runner (Production)
@@ -63,8 +69,11 @@ COPY --from=builder /app/.next/static ./.next/static
 # Copy our custom server.js (overwrites Next.js standalone server.js)
 COPY --from=builder /app/server.js ./server.js
 
+# Install pnpm to match the project's package manager
+RUN npm install -g pnpm
+
 # Install ws package for WebSocket proxy (needed at runtime)
-RUN npm install ws --omit=dev
+RUN pnpm add ws
 
 # Set correct permissions
 RUN chown -R nextjs:nodejs /app
@@ -85,4 +94,3 @@ ENV CLAWDBOT_URL="ws://host.docker.internal:18789"
 
 # Start the application
 CMD ["node", "server.js"]
-
