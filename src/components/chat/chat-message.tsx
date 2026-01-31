@@ -4,8 +4,10 @@ import { cn } from "@/lib/utils";
 import { BotHead } from "@/components/bot-head";
 import { ThinkingBubble } from "@/components/thinking-bubble";
 import { Check, Copy } from "lucide-react";
-import { useState } from "react";
+import { useState, ComponentPropsWithoutRef } from "react";
 import { Button } from "@/components/ui/button";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface ChatMessageProps {
   message: Message;
@@ -43,7 +45,74 @@ export function ChatMessage({ message, isLatestAssistant, isLatestUser, isWaitin
         )}
       >
         <div className="flex justify-between items-start gap-4">
-          <p className="whitespace-pre-wrap">{message.content}</p>
+          <div className="flex-1 overflow-hidden">
+            {isUser ? (
+              <p className="whitespace-pre-wrap">{message.content}</p>
+            ) : (
+              <div className="prose prose-invert prose-p:leading-relaxed prose-pre:p-0 max-w-none">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  // Text styling
+                  p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+                  strong: ({ children }) => <span className="font-bold text-cyan-400">{children}</span>,
+                  em: ({ children }) => <span className="italic text-zinc-200">{children}</span>,
+
+                  // Lists
+                  ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
+                  ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
+                  li: ({ children }) => <li className="pl-1">{children}</li>,
+
+                  // Code blocks
+                  code: ({ className, children, ...props }: ComponentPropsWithoutRef<"code">) => {
+                    const match = /language-(\w+)/.exec(className || "");
+                    const isInline = !match && !className?.includes("language-") && !String(children).includes("\n");
+
+                    return isInline ? (
+                      <code className="bg-zinc-800 text-zinc-200 px-1.5 py-0.5 rounded text-sm font-mono border border-zinc-700/50" {...props}>
+                        {children}
+                      </code>
+                    ) : (
+                      <div className="relative my-3 rounded-lg overflow-hidden border border-zinc-700/50 bg-zinc-900/50">
+                        <div className="flex items-center justify-between px-3 py-1.5 bg-zinc-800/50 border-b border-zinc-700/50">
+                          <span className="text-xs text-zinc-400 font-mono">{match?.[1] || "text"}</span>
+                        </div>
+                        <div className="p-3 overflow-x-auto">
+                          <code className={cn("font-mono text-sm text-zinc-300", className)} {...props}>
+                            {children}
+                          </code>
+                        </div>
+                      </div>
+                    );
+                  },
+
+                  // Tables
+                  table: ({ children }) => (
+                    <div className="my-4 w-full overflow-hidden rounded-lg border border-zinc-700/50">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left">{children}</table>
+                      </div>
+                    </div>
+                  ),
+                  thead: ({ children }) => <thead className="bg-zinc-800/50 text-zinc-200 uppercase text-xs font-semibold">{children}</thead>,
+                  tbody: ({ children }) => <tbody className="divide-y divide-zinc-700/50 bg-zinc-900/20">{children}</tbody>,
+                  tr: ({ children }) => <tr className="hover:bg-zinc-800/30 transition-colors">{children}</tr>,
+                  th: ({ children }) => <th className="px-4 py-3 whitespace-nowrap">{children}</th>,
+                  td: ({ children }) => <td className="px-4 py-3">{children}</td>,
+
+                  // Blockquotes
+                  blockquote: ({ children }) => (
+                    <blockquote className="border-l-4 border-cyan-500/30 pl-4 my-2 text-zinc-400 italic">
+                      {children}
+                    </blockquote>
+                  ),
+                }}
+              >
+                {message.content}
+              </ReactMarkdown>
+              </div>
+            )}
+          </div>
           {!isUser && (
             <Button
               variant="ghost"
