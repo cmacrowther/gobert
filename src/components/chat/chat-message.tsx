@@ -54,13 +54,13 @@ export function ChatMessage({ message, isLatestAssistant, isLatestUser, isWaitin
                 remarkPlugins={[remarkGfm]}
                 components={{
                   // Text styling
-                  p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
-                  strong: ({ children }) => <span className="font-bold text-cyan-400">{children}</span>,
+                  p: ({ children }) => <p className="mb-4 last:mb-0 leading-relaxed">{children}</p>,
+                  strong: ({ children }) => <span className="font-bold text-zinc-100">{children}</span>,
                   em: ({ children }) => <span className="italic text-zinc-200">{children}</span>,
 
                   // Lists
-                  ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
-                  ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
+                  ul: ({ children }) => <ul className="list-disc pl-4 mb-4 space-y-1">{children}</ul>,
+                  ol: ({ children }) => <ol className="list-decimal pl-4 mb-4 space-y-1">{children}</ol>,
                   li: ({ children }) => <li className="pl-1">{children}</li>,
 
                   // Code blocks
@@ -73,7 +73,7 @@ export function ChatMessage({ message, isLatestAssistant, isLatestUser, isWaitin
                         {children}
                       </code>
                     ) : (
-                      <div className="relative my-3 rounded-lg overflow-hidden border border-zinc-700/50 bg-zinc-900/50">
+                      <div className="relative my-6 rounded-lg overflow-hidden border border-zinc-700/50 bg-zinc-900/50">
                         <div className="flex items-center justify-between px-3 py-1.5 bg-zinc-800/50 border-b border-zinc-700/50">
                           <span className="text-xs text-zinc-400 font-mono">{match?.[1] || "text"}</span>
                         </div>
@@ -131,7 +131,7 @@ export function ChatMessage({ message, isLatestAssistant, isLatestUser, isWaitin
         <div className="flex items-center gap-3 mt-1 pl-1 fade-in">
           <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center relative">
             <ThinkingBubble visible={showBotThinking ?? false} className="top-[-8px] scale-75 origin-center thinking-bubble-small" />
-            <div className="w-10 h-10 -ml-1 -mt-1">
+            <div className="w-10 h-10 -ml-1">
               <BotHead className="w-full h-full" gazeTarget={gazeTarget} />
             </div>
           </div>

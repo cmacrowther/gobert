@@ -46,7 +46,7 @@ export function ChatList({ messages, gazeTarget, isWaitingForResponse }: ChatLis
             <div className="flex items-center gap-3 mt-1 pl-1 fade-in">
               <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center relative">
                 <ThinkingBubble visible={true} className="top-[-8px] scale-75 origin-center thinking-bubble-small" />
-                <div className="w-10 h-10 -ml-1 -mt-1">
+                <div className="w-10 h-10 -ml-1">
                   <BotHead className="w-full h-full" gazeTarget={gazeTarget} />
                 </div>
               </div>
