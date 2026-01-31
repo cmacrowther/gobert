@@ -143,7 +143,7 @@ export default function Home() {
       </header>
 
       {/* Main Chat Area - Centered and constrained width */}
-      <div className="flex-1 w-full max-w-3xl flex flex-col pt-20 pb-32 px-4 sm:px-0">
+      <div className="flex-1 w-full max-w-3xl flex flex-col pt-20 pb-64 px-4 sm:px-0">
         {!isLoaded ? null : messages.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center">
             {/* Floating Head for Empty State */}
