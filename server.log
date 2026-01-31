@@ -1,0 +1,12 @@
+
+> gobert-ui@0.1.0 dev /app
+> node server.js
+
+> Ready on http://0.0.0.0:3000
+> Clawdbot proxy endpoint: ws://0.0.0.0:3000/api/ws
+> Clawdbot backend URL: ws://localhost:18789
+○ Compiling / ...
+ GET / 200 in 5.0s (compile: 4.1s, render: 965ms)
+ GET / 200 in 85ms (compile: 6ms, render: 79ms)
+ GET / 200 in 218ms (compile: 62ms, render: 156ms)
+ GET / 200 in 202ms (compile: 39ms, render: 163ms)
