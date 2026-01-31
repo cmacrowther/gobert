@@ -75,6 +75,16 @@ export function useChat() {
 
   // Connect to WebSocket proxy
   useEffect(() => {
+    // Check for debug mode
+    if (process.env.NEXT_PUBLIC_DEBUG === 'true') {
+      console.log('Debug mode enabled: using mock connection');
+      setIsConnected(true);
+      setAgents([{ id: 'mock-agent', name: 'Mock Agent', description: 'A helpful debug assistant' }]);
+      setSelectedAgent('mock-agent');
+      setIsLoaded(true);
+      return;
+    }
+
     // Use the proxy endpoint - this connects to our server which proxies to Clawdbot
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/api/ws`;
@@ -105,6 +115,9 @@ export function useChat() {
       };
 
       ws.onclose = () => {
+        // If in debug mode, ignore real websocket closures if they happen somehow
+        if (process.env.NEXT_PUBLIC_DEBUG === 'true') return;
+
         setIsConnected(false);
         console.log('Disconnected from bot');
 
@@ -128,6 +141,9 @@ export function useChat() {
       };
 
       ws.onerror = (event) => {
+        // If in debug mode, ignore
+        if (process.env.NEXT_PUBLIC_DEBUG === 'true') return;
+
         console.error('WebSocket error:', event);
         setError('Connection error');
         setIsConnected(false);
@@ -135,6 +151,9 @@ export function useChat() {
       };
 
       ws.onmessage = (event) => {
+        // If in debug mode, ignore
+        if (process.env.NEXT_PUBLIC_DEBUG === 'true') return;
+
         const text = event.data;
 
         // Try to parse as JSON (Moltbot protocol)
@@ -297,6 +316,22 @@ export function useChat() {
     streamingMessageIdRef.current = null;
     setMessages((prev) => [...prev, newMessage]);
     setIsWaitingForResponse(true);
+
+    if (process.env.NEXT_PUBLIC_DEBUG === 'true') {
+      const delay = 1000 + Math.random() * 2000; // 1-3 seconds delay
+      setTimeout(() => {
+        const mockResponse = "This is a mock response from the debug mode. I am simulated!";
+        const responseMessage: Message = {
+          id: generateId(),
+          role: 'assistant',
+          content: mockResponse,
+          timestamp: Date.now(),
+        };
+        setMessages((prev) => [...prev, responseMessage]);
+        setIsWaitingForResponse(false);
+      }, delay);
+      return;
+    }
 
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       const agentRequest = {
