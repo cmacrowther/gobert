@@ -65,8 +65,10 @@ export default function Home() {
   useEffect(() => {
     // Only run when there are no messages (empty state)
     if (messages.length > 0) {
-      setShowThinkingBubble(false);
-      setShowIcon(false);
+      setTimeout(() => {
+        setShowThinkingBubble(false);
+        setShowIcon(false);
+      }, 0);
       return;
     }
 
