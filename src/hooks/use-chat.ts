@@ -50,19 +50,26 @@ export function useChat() {
     if (typeof window !== 'undefined') {
       const savedMessages = localStorage.getItem('chat-history');
       if (savedMessages) {
-        try {
-          // eslint-disable-next-line
-          const parsedMessages = JSON.parse(savedMessages) as Message[];
-          // Filter out existing "completed" messages from history
-          const filteredMessages = parsedMessages.filter(msg =>
-            msg.content && msg.content.trim().toLowerCase() !== 'completed'
-          );
-          setMessages(filteredMessages);
-        } catch (e) {
-          console.error('Failed to parse chat history', e);
-        }
+        // Use Response to parse JSON asynchronously to avoid blocking the main thread
+        new Response(savedMessages).json()
+          .then((parsed: unknown) => {
+            const parsedMessages = parsed as Message[];
+            // Filter out existing "completed" messages from history
+            const filteredMessages = parsedMessages.filter(msg =>
+              msg.content && msg.content.trim().toLowerCase() !== 'completed'
+            );
+            setMessages(filteredMessages);
+          })
+          .catch((e) => {
+            console.error('Failed to parse chat history', e);
+          })
+          .finally(() => {
+            setIsLoaded(true);
+          });
+      } else {
+        // Defer state update to avoid synchronous setState in useEffect
+        setTimeout(() => setIsLoaded(true), 0);
       }
-      setIsLoaded(true);
     }
   }, []);
 
@@ -78,10 +85,12 @@ export function useChat() {
     // Check for debug mode
     if (process.env.NEXT_PUBLIC_DEBUG === 'true') {
       console.log('Debug mode enabled: using mock connection');
-      setIsConnected(true);
-      setAgents([{ id: 'mock-agent', name: 'Mock Agent', description: 'A helpful debug assistant' }]);
-      setSelectedAgent('mock-agent');
-      setIsLoaded(true);
+      setTimeout(() => {
+        setIsConnected(true);
+        setAgents([{ id: 'mock-agent', name: 'Mock Agent', description: 'A helpful debug assistant' }]);
+        setSelectedAgent('mock-agent');
+        setIsLoaded(true);
+      }, 0);
       return;
     }
 
